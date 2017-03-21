@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Socket.IO chat</title>
+</head>
+
+<body>
+    <p id="data_placeholder"></p>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+        $(function () {
+            var socket = io();
+            socket.on('update_data', function (msg) {
+                $('#data_placeholder').text(msg);
+            });
+        });
+    </script>
+</body>
+
+</html>
