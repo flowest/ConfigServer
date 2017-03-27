@@ -16,14 +16,19 @@ udp_socket.on('error', (err) => {
 });
 
 udp_socket.on('message', (msg, rinfo) => {
-   //console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
-   var data = kinectData.KinectData.decode(msg);
-    io.emit('update_data', data);
+  //console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
+  var dataFromKinect = kinectData.KinectData.decode(msg);
+  var dataForClient = {
+    "kinectData": dataFromKinect,
+    "sourceIP": rinfo.address
+  };
+
+  io.emit('update_data', dataForClient);
 });
 
 udp_socket.bind(1337);
 
-app.get('/', function(req, res){
+app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
@@ -31,6 +36,6 @@ app.get('/', function(req, res){
 //     io.emit('update_data', data);
 // });
 
-http.listen(3000, function(){
+http.listen(3000, function () {
   console.log('listening on *:3000');
 });

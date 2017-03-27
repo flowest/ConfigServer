@@ -2,18 +2,72 @@
 <html>
 
 <head>
-    <title>Socket.IO chat</title>
+    <title>SmartSpace Middleware</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 </head>
 
 <body>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1>SmartSpace Control Center</h1>
+                <br>
+            </div>
+        </div>
+        <div class="row">
+            <table class="table table-hover table-bordered" id="kinectData">
+                <thead>
+                    <tr>
+                        <th class="col-lg-1">KinectID</th>
+                        <th class="col-lg-3">Tracking Body</th>
+                        <th class="col-lg-3">Tracking Position</th>
+                        <th class="col-lg-3">Source IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="kinect1">
+                        <th>1</th>
+                        <td class="kinectStatus"></td>
+                        <td class="kinectTrackingData"></td>
+                        <td class="sourceIP"></td>
+                    </tr>
+                    <tr id="kinect2">
+                        <th>2</th>
+                        <td class="kinectStatus"></td>
+                        <td class="kinectTrackingData"></td>
+                        <td class="sourceIP"></td>
+                    </tr>
+                    <tr id="kinect3">
+                        <th>3</th>
+                        <td class="kinectStatus"></td>
+                        <td class="kinectTrackingData"></td>
+                        <td class="sourceIP"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+
     <p id="data_placeholder"></p>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
         $(function () {
             var socket = io();
-            socket.on('update_data', function (msg) {
-                $('#data_placeholder').text("Kinect " + msg.ID  + " is sending: " + msg.positionTracked);
+            socket.on('update_data', function (data) {
+                if(data.isTrackingBody === true){
+                    $('#kinectData #kinect' + data.kinectData.ID + ' .kinectStatus').addClass('success');
+                    $('#kinectData #kinect' + data.kinectData.ID + ' .kinectStatus').removeClass('danger');
+                }
+                else{
+                    $('#kinectData #kinect' + data.kinectData.ID + ' .kinectStatus').removeClass('success');
+                    $('#kinectData #kinect' + data.kinectData.ID + ' .kinectStatus').addClass('danger');
+                }
+                $('#kinectData #kinect' + data.kinectData.ID + ' .kinectTrackingData').text(data.kinectData.positionTracked);
+                $('#kinectData #kinect' + data.kinectData.ID + ' .sourceIP').text(data.sourceIP);
             });
         });
     </script>
