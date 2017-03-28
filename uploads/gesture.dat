@@ -1,0 +1,7 @@
+package BodyDataClient;
+
+message KinectData {
+   optional int32 ID = 1 [default = 0];
+   optional float positionTracked = 2 [default = 0];
+   optional bool isTrackingBody = 3 [default = false];
+}

@@ -7,6 +7,8 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+
+    <script src="/js/client.js"></script>
 </head>
 
 <body>
@@ -19,6 +21,7 @@
         </div>
         <div class="row">
             <table class="table table-hover table-bordered" id="kinectData">
+                <caption>Microsoft Kinect streams</caption>
                 <thead>
                     <tr>
                         <th class="col-lg-1">KinectID</th>
@@ -49,28 +52,19 @@
                 </tbody>
             </table>
         </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <h2>Change tracking gesture</h2>
+                <form role="form" action="/upload_dat" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="uploadGestureFile">Select a .dat file</label>
+                        <input type="file" name="KinectData" value="" id="uploadGestureFile" onchange="ValidateSingleInput(this);">
+                    </div>
+                    <button type="submit" class="btn btn-default disabled" id="submitGestureFileButton">Upload</button>
+                </form>
+            </div>
+        </div>
     </div>
-
-
-
-    <p id="data_placeholder"></p>
-    <script>
-        $(function () {
-            var socket = io();
-            socket.on('update_data', function (data) {
-                if(data.isTrackingBody === true){
-                    $('#kinectData #kinect' + data.kinectData.ID + ' .kinectStatus').addClass('success');
-                    $('#kinectData #kinect' + data.kinectData.ID + ' .kinectStatus').removeClass('danger');
-                }
-                else{
-                    $('#kinectData #kinect' + data.kinectData.ID + ' .kinectStatus').removeClass('success');
-                    $('#kinectData #kinect' + data.kinectData.ID + ' .kinectStatus').addClass('danger');
-                }
-                $('#kinectData #kinect' + data.kinectData.ID + ' .kinectTrackingData').text(data.kinectData.positionTracked);
-                $('#kinectData #kinect' + data.kinectData.ID + ' .sourceIP').text(data.sourceIP);
-            });
-        });
-    </script>
 </body>
 
 </html>
