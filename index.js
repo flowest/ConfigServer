@@ -5,12 +5,15 @@ var io = require('socket.io')(http);
 const dgram = require('dgram');
 const udp_socket = dgram.createSocket('udp4');
 
+//load .proto files generated from the client c# application
 var protobuf = require('protocol-buffers');
 var fs = require('fs');
 var kinectData = protobuf(fs.readFileSync('KinectData.proto'));
 
+//use this folder for static files, referenced in .html files for client
 app.use(express.static('public'));
 
+//module for file upload (.dat gesture file that is spread to kinect clients)
 var multer = require('multer');
 const gestureFileName = "gesture.dat";
 const gestureDirectory = "./uploads/"
