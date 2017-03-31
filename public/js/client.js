@@ -1,7 +1,7 @@
 $(function () {
     var socket = io();
     socket.on('update_data', function (data) {
-        if (data.isTrackingBody === true) {
+        if (data.kinectData.isTrackingBody == true) {
             $('#kinectData #kinect' + data.kinectData.ID + ' .kinectStatus').addClass('success');
             $('#kinectData #kinect' + data.kinectData.ID + ' .kinectStatus').removeClass('danger');
         }
@@ -11,11 +11,8 @@ $(function () {
         }
         $('#kinectData #kinect' + data.kinectData.ID + ' .kinectTrackingData').text(data.kinectData.positionTracked);
         $('#kinectData #kinect' + data.kinectData.ID + ' .sourceIP').text(data.sourceIP);
+        console.log(data.kinectData.isTrackingBody);
     });
-});
-
-$(document).ready(function(){
-     
 });
 
 var _validFileExtensions = [".proto"];
