@@ -47,7 +47,7 @@ var connectedClients = [];
 var tcp_server = net.createServer(function (socket) {
 
   connectedClients.push(socket);
-  console.log("new client: " + socket.address().address);
+  console.log("new client: " + socket.remoteAddress);
 
   socket.on('end', function () {
     removeClientFromList(this);
