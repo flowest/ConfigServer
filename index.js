@@ -3,7 +3,8 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 const dgram = require('dgram');
-const udp_socket = dgram.createSocket('udp4');
+var net = require('net');
+const kinectDataUdpSocket = dgram.createSocket('udp4');
 
 //load .proto files generated from the client c# application
 var protobuf = require('protocol-buffers');
@@ -16,28 +17,18 @@ app.use(express.static('public'));
 //module for file upload (.dat gesture file that is spread to kinect clients)
 var multer = require('multer');
 const gestureFileName = "gesture.dat";
-const gestureDirectory = "./uploads/"
-var multerStorageConfig = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, gestureDirectory);
-  },
-  filename: function (req, file, cb) {
-    if (checkIfFileExists(gestureDirectory + gestureFileName) == true) {
-      fs.unlinkSync(gestureDirectory + gestureFileName);
-    }
-    cb(null, gestureFileName);
-    console.log("file sucessfully uploaded");
-    
-  }
-})
+const gestureDirectory = "./uploads/";
+var multerStorageConfig = multer.memoryStorage();
 var upload = multer({ storage: multerStorageConfig });
 
-udp_socket.on('error', (err) => {
+kinectDataUdpSocket.on('error', (err) => {
   console.log(`server error:\n${err.stack}`);
   server.close();
 });
 
-udp_socket.on('message', (msg, rinfo) => {
+
+//listening udp socket for kinect data
+kinectDataUdpSocket.on('message', (msg, rinfo) => {
   //console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
   var dataFromKinect = kinectData.KinectData.decode(msg);
   var dataForClient = {
@@ -48,7 +39,40 @@ udp_socket.on('message', (msg, rinfo) => {
   io.emit('update_data', dataForClient);
 });
 
-udp_socket.bind(1337);
+kinectDataUdpSocket.bind(1337);
+
+
+//listening tcp socket for client programm
+var connectedClients = [];
+var tcp_server = net.createServer(function (socket) {
+
+  connectedClients.push(socket);
+  console.log("new client: " + socket.address().address);
+
+  socket.on('end', function () {
+    removeClientFromList(this);
+    console.log("ended connection");
+  });
+
+  socket.on('error', function (error) {
+    //console.log(error);
+    console.log("lost connection");
+    removeClientFromList(this);
+  });
+
+  socket.on('data', function (data) {
+    console.log(data);
+  });
+});
+
+tcp_server.on('error', function (error) {
+  console.log(error);
+});
+
+tcp_server.listen(8000, function () {
+  console.log("tcp server listening");
+});
+
 
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
@@ -59,6 +83,7 @@ app.get('/', function (req, res) {
 // });
 
 app.post('/upload_dat', upload.any(), function (req, res, next) {
+  saveAndDistributeNewGestureFile(req.files[0].buffer);
   res.redirect('/');
 });
 
@@ -81,5 +106,27 @@ function checkIfFileExists(fileDirectory) {
     } else {
       console.log('Some other error: ', err.code);
     }
+  });
+}
+
+function removeClientFromList(socket) {
+  connectedClients.splice(connectedClients.indexOf(socket), 1);
+  console.log("client removed");
+}
+
+function saveAndDistributeNewGestureFile(buffer) {
+  if (checkIfFileExists(gestureDirectory + gestureFileName) == true) {
+    fs.unlinkSync(gestureDirectory + gestureFileName);
+  }
+  fs.writeFile(gestureDirectory + gestureFileName, buffer, function(err){
+    if(err == null){
+      broadcastFileToClient(buffer);
+    }
+  });
+}
+
+function broadcastFileToClient(buffer) {
+  connectedClients.forEach(function (clientSocket) {
+    clientSocket.write(buffer);
   });
 }

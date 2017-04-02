@@ -15,7 +15,7 @@ $(function () {
     });
 });
 
-var _validFileExtensions = [".proto"];
+var _validFileExtensions = [".dat"];
     function ValidateSingleInput(oInput) {
         if (oInput.type == "file") {
             var sFileName = oInput.value;
