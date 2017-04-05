@@ -36,7 +36,7 @@ kinectDataUdpSocket.on('message', (msg, rinfo) => {
     "sourceIP": rinfo.address
   };
 
-  io.emit('update_data', dataForClient);
+  io.emit('kinect_update_data', dataForClient);
 });
 
 kinectDataUdpSocket.bind(1337);
@@ -47,6 +47,11 @@ var connectedClients = [];
 var tcp_server = net.createServer(function (socket) {
 
   connectedClients.push(socket);
+
+  io.emit('tcp_client_update', {
+    status: "connect",
+    ipv4Adress: IP6toIP4(socket.remoteAddress)
+  });
   console.log("new client: " + socket.remoteAddress);
 
   socket.on('end', function () {
@@ -111,6 +116,10 @@ function checkIfFileExists(fileDirectory) {
 
 function removeClientFromList(socket) {
   connectedClients.splice(connectedClients.indexOf(socket), 1);
+  io.emit('tcp_client_update', {
+    status: "disconnect",
+    ipv4Adress: IP6toIP4(socket.remoteAddress)
+  });
   console.log("client removed");
 }
 
@@ -118,8 +127,8 @@ function saveAndDistributeNewGestureFile(buffer) {
   if (checkIfFileExists(gestureDirectory + gestureFileName) == true) {
     fs.unlinkSync(gestureDirectory + gestureFileName);
   }
-  fs.writeFile(gestureDirectory + gestureFileName, buffer, function(err){
-    if(err == null){
+  fs.writeFile(gestureDirectory + gestureFileName, buffer, function (err) {
+    if (err == null) {
       broadcastFileToClient(buffer);
     }
   });
@@ -129,4 +138,9 @@ function broadcastFileToClient(buffer) {
   connectedClients.forEach(function (clientSocket) {
     clientSocket.write(buffer);
   });
+}
+
+function IP6toIP4(ip6Adress) {
+  var ip6AdressParts = ip6Adress.split(':');
+  return ip6AdressParts[ip6AdressParts.length - 1];
 }

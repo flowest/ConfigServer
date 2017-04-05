@@ -1,9 +1,12 @@
 $(function () {
 
-    var socket = io();
-    socket.on('update_data', function (data) {
+    const DISCONNECT_TIMEOUT_MILLISECONDS = 1000;
 
-        clearNoDataReceivedTimer(data.kinectData.ID);
+    var socket = io();
+
+    socket.on('kinect_update_data', function (data) {
+
+        clearNoKinectDataReceivedTimer(data.kinectData.ID);
 
         if (data.kinectData.isTrackingBody == true) {
             $('#kinectData #kinect' + data.kinectData.ID + ' .kinectStatus').addClass('success');
@@ -16,22 +19,36 @@ $(function () {
             $('#kinectData #kinect' + data.kinectData.ID + ' .kinectTrackingData').text("---no body tracked---");
         }
         $('#kinectData #kinect' + data.kinectData.ID + ' .sourceIP').text(data.sourceIP);
-        console.log(data.kinectData.isTrackingBody);
+        $('#kinectData #kinect' + data.kinectData.ID).attr("source", data.sourceIP);
 
-        startNoDataReceivedTimer(data.kinectData.ID);
+        startNoKinectDataReceivedTimer(data.kinectData.ID);
+    });
+
+
+
+    socket.on('tcp_client_update', function (tcpClientData) {
+        if (tcpClientData.status == "disconnect") {
+            $('tr[source="' + tcpClientData.ipv4Adress + '"] .clientStatus').removeClass('success');
+            $('tr[source="' + tcpClientData.ipv4Adress + '"] .clientStatus').addClass('danger');
+        }
+        else if (tcpClientData.status == "connect"){
+            $('tr[source="' + tcpClientData.ipv4Adress + '"] .clientStatus').removeClass('danger');
+            $('tr[source="' + tcpClientData.ipv4Adress + '"] .clientStatus').addClass('success');
+        }
     });
 
     var noDataReceivedTimer = [];
 
-    function startNoDataReceivedTimer(kinectID) {
+    function startNoKinectDataReceivedTimer(kinectID) {
         noDataReceivedTimer[kinectID] = setTimeout(function () {
             $('#kinectData #kinect' + kinectID + ' .kinectStatus').removeClass('success danger');
             $('#kinectData #kinect' + kinectID + ' .kinectTrackingData').text("---no data received---");
             $('#kinectData #kinect' + kinectID + ' .sourceIP').text("---no data received---");
-        }, 1000);
+            $('#kinectData #kinect' + kinectID).attr("source", "no-source");
+        }, DISCONNECT_TIMEOUT_MILLISECONDS);
     }
 
-    function clearNoDataReceivedTimer(kinectID) {
+    function clearNoKinectDataReceivedTimer(kinectID) {
         clearTimeout(noDataReceivedTimer[kinectID]);
     }
 
