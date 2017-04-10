@@ -48,7 +48,7 @@ var tcp_server = net.createServer(function (socket) {
 
   connectedClients.push(socket);
 
-  io.emit('tcp_client_update', {
+  io.emit('tcp_client_connection_update', {
     status: "connect",
     ipv4Adress: IP6toIP4(socket.remoteAddress)
   });
@@ -66,7 +66,10 @@ var tcp_server = net.createServer(function (socket) {
   });
 
   socket.on('data', function (data) {
-    console.log(data);
+    //console.log("tcp socket data " + data);
+    io.emit('tcp_client_data', {
+      ipv4Adress: IP6toIP4(socket.remoteAddress)
+    });
   });
 });
 
@@ -116,7 +119,7 @@ function checkIfFileExists(fileDirectory) {
 
 function removeClientFromList(socket) {
   connectedClients.splice(connectedClients.indexOf(socket), 1);
-  io.emit('tcp_client_update', {
+  io.emit('tcp_client_connection_update', {
     status: "disconnect",
     ipv4Adress: IP6toIP4(socket.remoteAddress)
   });
