@@ -67,9 +67,9 @@ var tcp_server = net.createServer(function (socket) {
 
   socket.on('data', function (data) {
     //console.log("tcp socket data " + data);
-    io.emit('tcp_client_data', {
-      ipv4Adress: IP6toIP4(socket.remoteAddress)
-    });
+    // io.emit('tcp_client_data', {
+    //   ipv4Adress: IP6toIP4(socket.remoteAddress)
+    // });
   });
 });
 
