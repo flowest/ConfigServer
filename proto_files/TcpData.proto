@@ -1,0 +1,13 @@
+package BodyDataClient;
+
+message TcpData {
+	string data_type = 1;
+		oneof message{
+		AliveSignal alive_signal = 2;
+		string test = 3;
+	}
+}
+
+message AliveSignal {
+	string message = 1;
+}

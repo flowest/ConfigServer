@@ -9,7 +9,8 @@ const kinectDataUdpSocket = dgram.createSocket('udp4');
 //load .proto files generated from the client c# application
 var protobuf = require('protocol-buffers');
 var fs = require('fs');
-var kinectData = protobuf(fs.readFileSync('KinectData.proto'));
+var kinectData = protobuf(fs.readFileSync('proto_files/KinectData.proto'));
+var tcpData = protobuf(fs.readFileSync('proto_files/TcpData.proto'));
 
 //use this folder for static files, referenced in .html files for client
 app.use(express.static('public'));
@@ -66,7 +67,13 @@ var tcp_server = net.createServer(function (socket) {
   });
 
   socket.on('data', function (data) {
-    //console.log("tcp socket data " + data);
+    var tcp_data = tcpData.TcpData.decode(data);
+    if (tcp_data.data_type == "AliveSignal") {
+      console.log(tcp_data.alive_signal);
+    }
+    else if(tcp_data.data_type == "String"){
+      var jochen = tcp_data;
+    }
     // io.emit('tcp_client_data', {
     //   ipv4Adress: IP6toIP4(socket.remoteAddress)
     // });
