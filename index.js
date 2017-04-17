@@ -34,7 +34,7 @@ kinectDataUdpSocket.on('message', (msg, rinfo) => {
   var dataFromKinect = kinectData.KinectData.decode(msg);
   var dataForClient = {
     "kinectData": dataFromKinect,
-    "sourceIP": rinfo.address
+    "sourceIP": rinfo.address,
   };
 
   io.emit('kinect_update_data', dataForClient);
@@ -45,38 +45,38 @@ kinectDataUdpSocket.bind(1337);
 
 //listening tcp socket for client programm
 var connectedClients = [];
-var tcp_server = net.createServer(function (socket) {
+var tcp_server = net.createServer(function (tcpSocket) {
 
-  connectedClients.push(socket);
+  connectedClients.push(tcpSocket);
 
   io.emit('tcp_client_connection_update', {
     status: "connect",
-    ipv4Adress: IP6toIP4(socket.remoteAddress)
+    ipv4Adress: IP6toIP4(tcpSocket.remoteAddress)
   });
-  console.log("new client: " + socket.remoteAddress);
+  console.log("new client: " + tcpSocket.remoteAddress);
 
-  socket.on('end', function () {
+  tcpSocket.on('end', function () {
     removeClientFromList(this);
     console.log("ended connection");
   });
 
-  socket.on('error', function (error) {
+  tcpSocket.on('error', function (error) {
     //console.log(error);
     console.log("lost connection");
     removeClientFromList(this);
   });
 
-  socket.on('data', function (data) {
+  tcpSocket.on('data', function (data) {
     var tcp_data = tcpData.TcpData.decode(data);
     if (tcp_data.data_type == "AliveSignal") {
-      console.log(tcp_data.alive_signal);
+
+      io.emit('tcp_client_data', {
+        ipv4Adress: IP6toIP4(tcpSocket.remoteAddress)
+      });
     }
-    else if(tcp_data.data_type == "String"){
+    else if (tcp_data.data_type == "String") {
       var jochen = tcp_data;
     }
-    // io.emit('tcp_client_data', {
-    //   ipv4Adress: IP6toIP4(socket.remoteAddress)
-    // });
   });
 });
 

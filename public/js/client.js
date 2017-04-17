@@ -21,8 +21,14 @@ $(function () {
         }
         $('#kinectData #kinect' + data.kinectData.ID + ' .sourceIP').text(data.sourceIP);
         $('#kinectData #kinect' + data.kinectData.ID).attr("source", data.sourceIP);
+        $('#kinectData #kinect' + data.kinectData.ID + ' .trackingGestures').text(JSON.stringify(data.kinectData.trackingGestureNames));
 
         startNoUdpKinectDataReceivedTimer(data.kinectData.ID);
+
+        //test code
+        if(data.kinectData.isTrackingBody && data.kinectData.trackedGesture != ""){
+            alert(data.kinectData.trackedGesture);
+        }
     });
 
 
@@ -54,6 +60,7 @@ $(function () {
             $('#kinectData #kinect' + kinectID + ' .kinectStatus').removeClass('success danger');
             $('#kinectData #kinect' + kinectID + ' .kinectTrackingData').text("---no data received---");
             $('#kinectData #kinect' + kinectID + ' .sourceIP').text("---no data received---");
+            $('#kinectData #kinect' + kinectID + ' .trackingGestures').text("---no data received---");
             $('#kinectData #kinect' + kinectID).attr("source", "no-source");
         }, UDP_DISCONNECT_TIMEOUT_MILLISECONDS);
     }
