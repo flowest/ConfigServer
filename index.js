@@ -69,7 +69,7 @@ var tcp_server = net.createServer(function (tcpSocket) {
   tcpSocket.on('data', function (data) {
     var tcp_data = tcpData.TcpData.decode(data);
     if (tcp_data.data_type == "AliveSignal") {
-
+      
       io.emit('tcp_client_data', {
         ipv4Adress: IP6toIP4(tcpSocket.remoteAddress)
       });
@@ -88,6 +88,16 @@ tcp_server.listen(8000, function () {
   console.log("tcp server listening");
 });
 
+io.on('connection', function (socket) {
+  socket.on("test_sending", function (data) {
+    console.log(data);
+    var buffer = tcpData.AliveSignal.encode({
+      message: 'Hello from node!',
+    });
+
+    broadcastFileToClient(buffer);
+  })
+});
 
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');

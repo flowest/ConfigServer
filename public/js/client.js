@@ -1,9 +1,11 @@
+
+    var socket = io();
+
 $(function () {
 
     const UDP_DISCONNECT_TIMEOUT_MILLISECONDS = 1000;
     const TCP_DISCONNECT_TIMEOUT_MILLISECONDS = 10000;
 
-    var socket = io();
 
     socket.on('kinect_update_data', function (data) {
 
@@ -26,7 +28,7 @@ $(function () {
         startNoUdpKinectDataReceivedTimer(data.kinectData.ID);
 
         //test code
-        if(data.kinectData.isTrackingBody && data.kinectData.trackedGesture != ""){
+        if (data.kinectData.isTrackingBody && data.kinectData.trackedGesture != "") {
             alert(data.kinectData.trackedGesture);
         }
     });
@@ -61,7 +63,7 @@ $(function () {
             $('#kinectData #kinect' + kinectID + ' .kinectTrackingData').text("---no data received---");
             $('#kinectData #kinect' + kinectID + ' .sourceIP').text("---no data received---");
             $('#kinectData #kinect' + kinectID + ' .trackingGestures').text("---no data received---");
-            $('#kinectData #kinect' + kinectID).attr("source", "no-source");
+            //$('#kinectData #kinect' + kinectID).attr("source", "no-source");
         }, UDP_DISCONNECT_TIMEOUT_MILLISECONDS);
     }
 
@@ -75,7 +77,6 @@ $(function () {
     function startNoTcpDataReceivedTimer(ipv4Adress) {
         noTcpDataReceivedTimer[ipv4Adress] = setTimeout(function () {
             $('tr[source="' + ipv4Adress + '"] .clientStatus').removeClass('success');
-            $('tr[source="' + ipv4Adress + '"] .clientStatus').addClass('danger');
             console.log("noTcpDataReceived timer elapsed");
         }, TCP_DISCONNECT_TIMEOUT_MILLISECONDS);
     }
@@ -110,4 +111,9 @@ function validateSingleInput(oInput) {
         }
     }
     return true;
+}
+
+
+function sendDataToServer() {
+    socket.emit("test_sending", { hello: 'world' });
 }

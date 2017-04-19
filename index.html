@@ -62,14 +62,17 @@
         </div>
         <div class="row">
             <div class="col-lg-6">
-                <h2>Change tracking gesture</h2>
+                <h2>Add tracking gesture</h2>
                 <form role="form" action="/upload_dat" method="POST" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="uploadGestureFile">Select a .dat file</label>
-                        <input type="file" name="KinectData" value="" id="uploadGestureFile" onchange="validateSingleInput(this);">
+                        <input type="file" class="btn btn-default" name="KinectData" value="" id="uploadGestureFile" onchange="validateSingleInput(this);">
                     </div>
                     <button type="submit" class="btn btn-default disabled" id="submitGestureFileButton">Upload</button>
                 </form>
+            </div>
+            <div class="col-lg-6">
+                <button class="btn btn-default" onclick="sendDataToServer()">Send</button>
             </div>
         </div>
     </div>
