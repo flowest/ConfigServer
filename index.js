@@ -6,11 +6,26 @@ const dgram = require('dgram');
 var net = require('net');
 const kinectDataUdpSocket = dgram.createSocket('udp4');
 
-//load .proto files generated from the client c# application
-var protobuf = require('protocol-buffers');
 var fs = require('fs');
-var kinectData = protobuf(fs.readFileSync('proto_files/KinectData.proto'));
-var tcpData = protobuf(fs.readFileSync('proto_files/TcpData.proto'));
+
+//load the proto files
+var protobuf = require('protobufjs');
+var KinectData = null;
+protobuf.load("proto_files/KinectData.proto", function (err, root) {
+  if (err) {
+    throw err;
+  }
+  KinectData = root.lookupType("BodyDataClient.KinectData");
+});
+
+var TcpData = null;
+protobuf.load("proto_files/TcpData.proto", function (err, root) {
+  if (err) {
+    throw err;
+  }
+  TcpData = root.lookupType("BodyDataClient.TcpData");
+});
+
 
 //use this folder for static files, referenced in .html files for client
 app.use(express.static('public'));
@@ -30,7 +45,7 @@ kinectDataUdpSocket.on('error', (err) => {
 //listening udp socket for kinect data
 kinectDataUdpSocket.on('message', (msg, rinfo) => {
   //console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
-  var dataFromKinect = kinectData.KinectData.decode(msg);
+  var dataFromKinect = KinectData.decode(msg);
   var dataForClient = {
     "kinectData": dataFromKinect,
     "sourceIP": rinfo.address,
@@ -66,9 +81,9 @@ var tcp_server = net.createServer(function (tcpSocket) {
   });
 
   tcpSocket.on('data', function (data) {
-    var tcp_data = tcpData.TcpData.decode(data);
+    var tcp_data = TcpData.decode(data);
     if (tcp_data.data_type == "AliveSignal") {
-      
+
       io.emit('tcp_client_data', {
         ipv4Adress: IP6toIP4(tcpSocket.remoteAddress)
       });
