@@ -9,15 +9,15 @@ const kinectDataUdpSocket = dgram.createSocket('udp4');
 //load .proto files generated from the client c# application
 var protobuf = require('protocol-buffers');
 var fs = require('fs');
-var kinectData = protobuf(fs.readFileSync('KinectData.proto'));
+var kinectData = protobuf(fs.readFileSync('proto_files/KinectData.proto'));
+var tcpData = protobuf(fs.readFileSync('proto_files/TcpData.proto'));
 
 //use this folder for static files, referenced in .html files for client
 app.use(express.static('public'));
 
 //module for file upload (.dat gesture file that is spread to kinect clients)
 var multer = require('multer');
-const gestureFileName = "gesture.dat";
-const gestureDirectory = "./uploads/";
+const GESTURE_DIRECTORY = "./uploads/";
 var multerStorageConfig = multer.memoryStorage();
 var upload = multer({ storage: multerStorageConfig });
 
@@ -33,7 +33,7 @@ kinectDataUdpSocket.on('message', (msg, rinfo) => {
   var dataFromKinect = kinectData.KinectData.decode(msg);
   var dataForClient = {
     "kinectData": dataFromKinect,
-    "sourceIP": rinfo.address
+    "sourceIP": rinfo.address,
   };
 
   io.emit('kinect_update_data', dataForClient);
@@ -44,32 +44,38 @@ kinectDataUdpSocket.bind(1337);
 
 //listening tcp socket for client programm
 var connectedClients = [];
-var tcp_server = net.createServer(function (socket) {
+var tcp_server = net.createServer(function (tcpSocket) {
 
-  connectedClients.push(socket);
+  connectedClients.push(tcpSocket);
 
   io.emit('tcp_client_connection_update', {
     status: "connect",
-    ipv4Adress: IP6toIP4(socket.remoteAddress)
+    ipv4Adress: IP6toIP4(tcpSocket.remoteAddress)
   });
-  console.log("new client: " + socket.remoteAddress);
+  console.log("new client: " + tcpSocket.remoteAddress);
 
-  socket.on('end', function () {
+  tcpSocket.on('end', function () {
     removeClientFromList(this);
     console.log("ended connection");
   });
 
-  socket.on('error', function (error) {
+  tcpSocket.on('error', function (error) {
     //console.log(error);
     console.log("lost connection");
     removeClientFromList(this);
   });
 
-  socket.on('data', function (data) {
-    //console.log("tcp socket data " + data);
-    io.emit('tcp_client_data', {
-      ipv4Adress: IP6toIP4(socket.remoteAddress)
-    });
+  tcpSocket.on('data', function (data) {
+    var tcp_data = tcpData.TcpData.decode(data);
+    if (tcp_data.data_type == "AliveSignal") {
+      
+      io.emit('tcp_client_data', {
+        ipv4Adress: IP6toIP4(tcpSocket.remoteAddress)
+      });
+    }
+    else if (tcp_data.data_type == "String") {
+      var jochen = tcp_data;
+    }
   });
 });
 
@@ -81,6 +87,16 @@ tcp_server.listen(8000, function () {
   console.log("tcp server listening");
 });
 
+io.on('connection', function (socket) {
+  socket.on("test_sending", function (data) {
+    console.log(data);
+    var buffer = tcpData.AliveSignal.encode({
+      message: 'Hello from node!',
+    });
+
+    broadcastFileToClient(buffer);
+  })
+});
 
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
@@ -91,7 +107,7 @@ app.get('/', function (req, res) {
 // });
 
 app.post('/upload_dat', upload.any(), function (req, res, next) {
-  saveAndDistributeNewGestureFile(req.files[0].buffer);
+  saveAndDistributeNewGestureFile(req.files[0].buffer, req.files[0].originalname);
   res.redirect('/');
 });
 
@@ -126,11 +142,11 @@ function removeClientFromList(socket) {
   console.log("client removed");
 }
 
-function saveAndDistributeNewGestureFile(buffer) {
-  if (checkIfFileExists(gestureDirectory + gestureFileName) == true) {
-    fs.unlinkSync(gestureDirectory + gestureFileName);
+function saveAndDistributeNewGestureFile(buffer, gestureFileName) {
+  if (checkIfFileExists(GESTURE_DIRECTORY + gestureFileName) == true) {
+    fs.unlinkSync(GESTURE_DIRECTORY + gestureFileName);
   }
-  fs.writeFile(gestureDirectory + gestureFileName, buffer, function (err) {
+  fs.writeFile(GESTURE_DIRECTORY + gestureFileName, buffer, function (err) {
     if (err == null) {
       broadcastFileToClient(buffer);
     }
