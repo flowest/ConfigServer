@@ -17,8 +17,7 @@ app.use(express.static('public'));
 
 //module for file upload (.dat gesture file that is spread to kinect clients)
 var multer = require('multer');
-const gestureFileName = "gesture.dat";
-const gestureDirectory = "./uploads/";
+const GESTURE_DIRECTORY = "./uploads/";
 var multerStorageConfig = multer.memoryStorage();
 var upload = multer({ storage: multerStorageConfig });
 
@@ -108,7 +107,7 @@ app.get('/', function (req, res) {
 // });
 
 app.post('/upload_dat', upload.any(), function (req, res, next) {
-  saveAndDistributeNewGestureFile(req.files[0].buffer);
+  saveAndDistributeNewGestureFile(req.files[0].buffer, req.files[0].originalname);
   res.redirect('/');
 });
 
@@ -143,11 +142,11 @@ function removeClientFromList(socket) {
   console.log("client removed");
 }
 
-function saveAndDistributeNewGestureFile(buffer) {
-  if (checkIfFileExists(gestureDirectory + gestureFileName) == true) {
-    fs.unlinkSync(gestureDirectory + gestureFileName);
+function saveAndDistributeNewGestureFile(buffer, gestureFileName) {
+  if (checkIfFileExists(GESTURE_DIRECTORY + gestureFileName) == true) {
+    fs.unlinkSync(GESTURE_DIRECTORY + gestureFileName);
   }
-  fs.writeFile(gestureDirectory + gestureFileName, buffer, function (err) {
+  fs.writeFile(GESTURE_DIRECTORY + gestureFileName, buffer, function (err) {
     if (err == null) {
       broadcastFileToClient(buffer);
     }
