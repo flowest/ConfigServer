@@ -1,0 +1,10 @@
+.deleteGestureButton{
+    margin-top: -7px;
+    display: none;
+    margin-left: 3px;
+}
+
+#currentTrackingGestures .gestureFile:hover .deleteGestureButton{
+    display: block;
+}
+

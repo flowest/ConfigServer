@@ -4,10 +4,16 @@ message TcpData {
 	required string data_type = 1;
 		oneof message{
 		AliveSignal alive_signal = 2;
-		string test = 3;
+		GestureFile gesture_file = 3;
+		string test = 4;
 	}
 }
 
 message AliveSignal {
 	required string message = 1;
+}
+
+message GestureFile {
+	required bytes gestureFileBuffer = 1;
+	required string fileName = 2;
 }

@@ -36,6 +36,7 @@ const GESTURE_DIRECTORY = "./uploads/";
 var multerStorageConfig = multer.memoryStorage();
 var upload = multer({ storage: multerStorageConfig });
 
+
 kinectDataUdpSocket.on('error', (err) => {
   console.log(`server error:\n${err.stack}`);
   server.close();
@@ -103,14 +104,33 @@ tcp_server.listen(8000, function () {
 });
 
 io.on('connection', function (socket) {
+
   socket.on("test_sending", function (data) {
     console.log(data);
-    var buffer = tcpData.AliveSignal.encode({
-      message: 'Hello from node!',
-    });
 
-    broadcastFileToClient(buffer);
-  })
+    var payload = {
+      dataType: 'AliveSignal',
+      aliveSignal: { message: 'Hello form node!' }
+    };
+
+    var err = TcpData.verify(payload);
+    if (err)
+      throw Error(err)
+
+    var buffer = TcpData.encode(payload).finish();
+
+    var test = TcpData.decode(buffer);
+
+    broadcastTcpDataToClients(buffer);
+  });
+
+  socket.on('get_gesture_files', function (data) {
+    io.emit('saved_gesture_files', loadGestureFiles());
+  });
+
+  socket.on('remove_gesture_file', function (gestureFileName) {
+    removeGestureFile(gestureFileName);
+  });
 });
 
 app.get('/', function (req, res) {
@@ -124,6 +144,7 @@ app.get('/', function (req, res) {
 app.post('/upload_dat', upload.any(), function (req, res, next) {
   saveAndDistributeNewGestureFile(req.files[0].buffer, req.files[0].originalname);
   res.redirect('/');
+  io.emit('saved_gesture_files', loadGestureFiles());
 });
 
 // io.on('connection', function(socket){
@@ -163,18 +184,42 @@ function saveAndDistributeNewGestureFile(buffer, gestureFileName) {
   }
   fs.writeFile(GESTURE_DIRECTORY + gestureFileName, buffer, function (err) {
     if (err == null) {
-      broadcastFileToClient(buffer);
+
+      var payload = {
+        dataType: 'NewGestureFile',
+        gestureFile: {
+          gestureFileBuffer: buffer,
+          fileName: gestureFileName
+        }
+      }
+      broadcastTcpDataToClients(buffer, payload);
     }
   });
 }
 
-function broadcastFileToClient(buffer) {
+function broadcastTcpDataToClients(buffer, payload) {
+
+  var err = TcpData.verify(payload);
+  if (err)
+    throw Error(err)
+
+  var protoBuffer = TcpData.encode(payload).finish();
+
   connectedClients.forEach(function (clientSocket) {
-    clientSocket.write(buffer);
+    clientSocket.write(protoBuffer);
   });
 }
 
 function IP6toIP4(ip6Adress) {
   var ip6AdressParts = ip6Adress.split(':');
   return ip6AdressParts[ip6AdressParts.length - 1];
+}
+
+function loadGestureFiles() {
+  return fs.readdirSync(GESTURE_DIRECTORY);
+}
+
+function removeGestureFile(gestureFileName) {
+  fs.unlinkSync(GESTURE_DIRECTORY + "/" + gestureFileName);
+  io.emit('saved_gesture_files', loadGestureFiles());
 }

@@ -6,4 +6,5 @@ message KinectData {
    optional bool isTrackingBody = 3 [default = false];
    repeated string trackingGestureNames = 4;
    optional string trackedGesture = 5;
+   optional float positionGestureTracked = 6;
 }

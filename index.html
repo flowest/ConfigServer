@@ -4,6 +4,7 @@
 <head>
     <title>SmartSpace Middleware</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/client.css">
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
@@ -28,8 +29,9 @@
                         <th class="col-lg-1">Client Connected</th>
                         <th class="col-lg-1">Tracking Body</th>
                         <th class="col-lg-3">Tracking Position</th>
-                        <th class="col-lg-3">Source IP</th>
+                        <th class="col-lg-1">Source IP</th>
                         <th class="col-lg-3">Tracking gestures</th>
+                        <th class="col-lg-2">Tracking gesture position</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -40,6 +42,7 @@
                         <td class="kinectTrackingData"></td>
                         <td class="sourceIP"></td>
                         <td class="trackingGestures"></td>
+                        <td class="trackingGesturePosition"></td>
                     </tr>
                     <tr id="kinect2" source="">
                         <th>2</th>
@@ -48,6 +51,7 @@
                         <td class="kinectTrackingData"></td>
                         <td class="sourceIP"></td>
                         <td class="trackingGestures"></td>
+                        <td class="trackingGesturePosition"></td>
                     </tr>
                     <tr id="kinect3" source="">
                         <th>3</th>
@@ -56,6 +60,7 @@
                         <td class="kinectTrackingData"></td>
                         <td class="sourceIP"></td>
                         <td class="trackingGestures"></td>
+                        <td class="trackingGesturePosition"></td>
                     </tr>
                 </tbody>
             </table>
@@ -72,7 +77,14 @@
                 </form>
             </div>
             <div class="col-lg-6">
-                <button class="btn btn-default" onclick="sendDataToServer()">Send</button>
+                <h2>Current tracking gestures</h2>
+                <div class="list-group" id="currentTrackingGestures"></div>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-lg-12">
+                <button class="btn btn-primary" onclick="sendDataToServer()">Send</button>
             </div>
         </div>
     </div>

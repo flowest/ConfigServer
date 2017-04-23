@@ -1,11 +1,23 @@
 
-    var socket = io();
+var socket = io();
 
 $(function () {
 
     const UDP_DISCONNECT_TIMEOUT_MILLISECONDS = 1000;
     const TCP_DISCONNECT_TIMEOUT_MILLISECONDS = 10000;
 
+    socket.on('saved_gesture_files', function (gestureFiles) {
+
+        var list = document.getElementById('currentTrackingGestures');
+        list.innerHTML = "";
+        gestureFiles.forEach(file => {
+            list.innerHTML += '<p class="list-group-item gestureFile">' + file
+                + '<button class="btn btn-danger pull-right deleteGestureButton" onclick="deleteGestureFile(\'' + file + '\');" type="button">Delete</button>'
+                + '<button class="btn btn-warning pull-right deleteGestureButton" onclick="untrackGestureFile(\'' + file + '\');" type="button">Untrack</button>'
+                + '<button class="btn btn-success pull-right deleteGestureButton" onclick="trackGestureFile(\'' + file + '\');" type="button">Track</button>'
+                + '</p> ';
+        });
+    });
 
     socket.on('kinect_update_data', function (data) {
 
@@ -29,7 +41,8 @@ $(function () {
 
         //test code
         if (data.kinectData.isTrackingBody && data.kinectData.trackedGesture != "") {
-            alert(data.kinectData.trackedGesture);
+            //alert(data.kinectData.trackedGesture);
+            $('#kinectData #kinect' + data.kinectData.ID + ' .trackingGesturePosition').text(data.kinectData.positionGestureTracked);
         }
     });
 
@@ -63,6 +76,7 @@ $(function () {
             $('#kinectData #kinect' + kinectID + ' .kinectTrackingData').text("---no data received---");
             $('#kinectData #kinect' + kinectID + ' .sourceIP').text("---no data received---");
             $('#kinectData #kinect' + kinectID + ' .trackingGestures').text("---no data received---");
+            $('#kinectData #kinect' + kinectID + ' .trackingGesturePosition').text("---no data received---");
             //$('#kinectData #kinect' + kinectID).attr("source", "no-source");
         }, UDP_DISCONNECT_TIMEOUT_MILLISECONDS);
     }
@@ -113,7 +127,14 @@ function validateSingleInput(oInput) {
     return true;
 }
 
+socket.emit('get_gesture_files');
 
 function sendDataToServer() {
     socket.emit("test_sending", { hello: 'world' });
+}
+
+function deleteGestureFile(file) {
+    if (confirm("Do you really want to delete gesture: " + file + "?")) {
+        socket.emit('remove_gesture_file', file);
+    }
 }
