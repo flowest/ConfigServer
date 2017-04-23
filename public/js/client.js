@@ -35,7 +35,13 @@ $(function () {
         }
         $('#kinectData #kinect' + data.kinectData.ID + ' .sourceIP').text(data.sourceIP);
         $('#kinectData #kinect' + data.kinectData.ID).attr("source", data.sourceIP);
-        $('#kinectData #kinect' + data.kinectData.ID + ' .trackingGestures').text(JSON.stringify(data.kinectData.trackingGestureNames));
+        if (data.kinectData.trackingGestureNames) {
+            $('#kinectData #kinect' + data.kinectData.ID + ' .trackingGestures').text(JSON.stringify(data.kinectData.trackingGestureNames));
+        }
+        else{
+            $('#kinectData #kinect' + data.kinectData.ID + ' .trackingGestures').text("no gestures in use");
+        }
+
 
         startNoUdpKinectDataReceivedTimer(data.kinectData.ID);
 
@@ -137,4 +143,12 @@ function deleteGestureFile(file) {
     if (confirm("Do you really want to delete gesture: " + file + "?")) {
         socket.emit('remove_gesture_file', file);
     }
+}
+
+function untrackGestureFile(file){
+    socket.emit('untrack_gesture_file', file);
+}
+
+function trackGestureFile(file){
+    socket.emit('track_gesture_file', file);
 }

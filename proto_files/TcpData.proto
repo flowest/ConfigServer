@@ -5,7 +5,9 @@ message TcpData {
 		oneof message{
 		AliveSignal alive_signal = 2;
 		GestureFile gesture_file = 3;
-		string test = 4;
+		string gesture_file_name_for_action = 4;
+		GestureFilesOnServer gesture_files_on_server = 5;
+		DownloadMissingGestureFilesRequest missing_files = 6;
 	}
 }
 
@@ -16,4 +18,12 @@ message AliveSignal {
 message GestureFile {
 	required bytes gestureFileBuffer = 1;
 	required string fileName = 2;
+}
+
+message GestureFilesOnServer {
+	repeated string files = 1;
+}
+
+message DownloadMissingGestureFilesRequest {
+	repeated string files = 1;
 }
