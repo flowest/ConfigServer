@@ -26,7 +26,7 @@ $(function () {
         if (data.kinectData.isTrackingBody == true) {
             $('#kinectData #kinect' + data.kinectData.ID + ' .kinectStatus').addClass('success');
             $('#kinectData #kinect' + data.kinectData.ID + ' .kinectStatus').removeClass('danger');
-            $('#kinectData #kinect' + data.kinectData.ID + ' .kinectTrackingData').text(data.kinectData.positionTracked);
+            $('#kinectData #kinect' + data.kinectData.ID + ' .kinectTrackingData').text("[" + data.kinectData.positionTracked.x + ", " + data.kinectData.positionTracked.y + ", " + data.kinectData.positionTracked.z + "]");
         }
         else {
             $('#kinectData #kinect' + data.kinectData.ID + ' .kinectStatus').removeClass('success');
@@ -45,10 +45,17 @@ $(function () {
 
         startNoUdpKinectDataReceivedTimer(data.kinectData.ID);
 
+        if(data.kinectData.isTrackingBody){
+            $('#person').css({top: data.kinectData.positionTracked.z * 100 + 'px', left: 500 + data.kinectData.positionTracked.x * 100 + 'px'});
+        }
+        else{
+            $('#person').css({top: '0px'});
+        }
+
         //test code
         if (data.kinectData.isTrackingBody && data.kinectData.trackedGesture != "") {
             //alert(data.kinectData.trackedGesture);
-            $('#kinectData #kinect' + data.kinectData.ID + ' .trackingGesturePosition').text(data.kinectData.positionGestureTracked);
+            $('#kinectData #kinect' + data.kinectData.ID + ' .trackingGesturePosition').text("[" + data.kinectData.positionGestureTracked.x + ", " + data.kinectData.positionGestureTracked.y + ", " + data.kinectData.positionGestureTracked.z +  "]");
         }
     });
 

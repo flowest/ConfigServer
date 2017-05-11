@@ -8,3 +8,19 @@
     display: block;
 }
 
+.room{
+    border: 1px solid;
+    border-color: black;
+    margin-bottom: 500px;
+
+    height: 400px;
+    width: 1000px;
+}
+
+#person{
+    height: 40px;
+    width: 40px;
+    background-color: black;
+    position: relative;
+}
+
