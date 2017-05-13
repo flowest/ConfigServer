@@ -6,6 +6,17 @@ $(function () {
     const UDP_DISCONNECT_TIMEOUT_MILLISECONDS = 1000;
     const TCP_DISCONNECT_TIMEOUT_MILLISECONDS = 10000;
 
+    socket.emit('get_room_settings');
+
+    socket.on('send_room_settings', function (roomSettings) {
+        $('#save-room-settings-btn').removeAttr("disabled");
+
+        $("#room-width").val(roomSettings.width);
+        $("#room-length").val(roomSettings.length);
+
+        $("#room").css({ width: roomSettings.width + 'px', height: roomSettings.length + 'px' });
+    });
+
     socket.on('saved_gesture_files', function (gestureFiles) {
 
         var list = document.getElementById('currentTrackingGestures');
@@ -21,41 +32,44 @@ $(function () {
 
     socket.on('kinect_update_data', function (data) {
 
-        clearNoUdpKinectDataReceivedTimer(data.kinectData.ID);
+        clearNoUdpKinectDataReceivedTimer(data.ID);
 
         if (data.kinectData.isTrackingBody == true) {
-            $('#kinectData #kinect' + data.kinectData.ID + ' .kinectStatus').addClass('success');
-            $('#kinectData #kinect' + data.kinectData.ID + ' .kinectStatus').removeClass('danger');
-            $('#kinectData #kinect' + data.kinectData.ID + ' .kinectTrackingData').text("[" + data.kinectData.positionTracked.x + ", " + data.kinectData.positionTracked.y + ", " + data.kinectData.positionTracked.z + "]");
+            $('#kinectData #kinect' + data.ID + ' .kinectStatus').addClass('success');
+            $('#kinectData #kinect' + data.ID + ' .kinectStatus').removeClass('danger');
+            $('#kinectData #kinect' + data.ID + ' .kinectTrackingData').text("[" + data.kinectData.positionTracked.x + ", " + data.kinectData.positionTracked.y + ", " + data.kinectData.positionTracked.z + "]");
         }
         else {
-            $('#kinectData #kinect' + data.kinectData.ID + ' .kinectStatus').removeClass('success');
-            $('#kinectData #kinect' + data.kinectData.ID + ' .kinectStatus').addClass('danger');
-            $('#kinectData #kinect' + data.kinectData.ID + ' .kinectTrackingData').text("---no body tracked---");
+            $('#kinectData #kinect' + data.ID + ' .kinectStatus').removeClass('success');
+            $('#kinectData #kinect' + data.ID + ' .kinectStatus').addClass('danger');
+            $('#kinectData #kinect' + data.ID + ' .kinectTrackingData').text("---no body tracked---");
         }
-        $('#kinectData #kinect' + data.kinectData.ID + ' .sourceIP').text(data.sourceIP);
-        $('#kinectData #kinect' + data.kinectData.ID).attr("source", data.sourceIP);
+        $('#kinectData #kinect' + data.ID + ' .sourceIP').text(data.sourceIP);
+        $('#kinectData #kinect' + data.ID).attr("source", data.sourceIP);
         if (data.kinectData.trackingGestureNames) {
-            $('#kinectData #kinect' + data.kinectData.ID + ' .trackingGestures').text(JSON.stringify(data.kinectData.trackingGestureNames));
+            $('#kinectData #kinect' + data.ID + ' .trackingGestures').text(JSON.stringify(data.kinectData.trackingGestureNames));
         }
-        else{
-            $('#kinectData #kinect' + data.kinectData.ID + ' .trackingGestures').text("no gestures in use");
+        else {
+            $('#kinectData #kinect' + data.ID + ' .trackingGestures').text("no gestures in use");
         }
 
 
-        startNoUdpKinectDataReceivedTimer(data.kinectData.ID);
+        startNoUdpKinectDataReceivedTimer(data.ID);
 
-        if(data.kinectData.isTrackingBody){
-            $('#person').css({top: data.kinectData.positionTracked.z * 100 + 'px', left: 500 + data.kinectData.positionTracked.x * 100 + 'px'});
+        if (data.kinectData.isTrackingBody) {
+            $('.person').css({ display: 'block' });
+            $('.person').css({ top: data.kinectData.positionTracked.z * 100 + 'px', left: 500 + data.kinectData.positionTracked.x * 100 + 'px' });
+
+            $('.person .person-label').html(data.ID);
         }
-        else{
-            $('#person').css({top: '0px'});
+        else {
+            // $('.person').css({ display: 'none' });
         }
 
         //test code
         if (data.kinectData.isTrackingBody && data.kinectData.trackedGesture != "") {
             //alert(data.kinectData.trackedGesture);
-            $('#kinectData #kinect' + data.kinectData.ID + ' .trackingGesturePosition').text("[" + data.kinectData.positionGestureTracked.x + ", " + data.kinectData.positionGestureTracked.y + ", " + data.kinectData.positionGestureTracked.z +  "]");
+            $('#kinectData #kinect' + data.ID + ' .trackingGesturePosition').text("[" + data.kinectData.positionGestureTracked.x + ", " + data.kinectData.positionGestureTracked.y + ", " + data.kinectData.positionGestureTracked.z + "]");
         }
     });
 
@@ -65,14 +79,23 @@ $(function () {
         if (tcpClientData.status == "disconnect") {
             $('tr[source="' + tcpClientData.ipv4Adress + '"] .clientStatus').removeClass('success');
             $('tr[source="' + tcpClientData.ipv4Adress + '"] .clientStatus').addClass('danger');
+
+            removeKinectFromTable(tcpClientData.ipv4Adress);
         }
         else if (tcpClientData.status == "connect") {
             $('tr[source="' + tcpClientData.ipv4Adress + '"] .clientStatus').removeClass('danger');
             $('tr[source="' + tcpClientData.ipv4Adress + '"] .clientStatus').addClass('success');
+
+            addKinectToTable(tcpClientData.ID, tcpClientData.ipv4Adress);
         }
     });
 
     socket.on('tcp_client_data', function (tcpClientData) {
+
+        if ($('tr[source="' + tcpClientData.ipv4Adress + '"]').length == 0) {
+            addKinectToTable(tcpClientData.ipv4Adress.split('.')[3], tcpClientData.ipv4Adress);
+        }
+
         clearNoTcpDataReceivedTimer(tcpClientData.ipv4Adress);
 
         $('tr[source="' + tcpClientData.ipv4Adress + '"] .clientStatus').removeClass('danger');
@@ -104,12 +127,31 @@ $(function () {
     function startNoTcpDataReceivedTimer(ipv4Adress) {
         noTcpDataReceivedTimer[ipv4Adress] = setTimeout(function () {
             $('tr[source="' + ipv4Adress + '"] .clientStatus').removeClass('success');
+            removeKinectFromTable(ipv4Adress);
             console.log("noTcpDataReceived timer elapsed");
         }, TCP_DISCONNECT_TIMEOUT_MILLISECONDS);
     }
 
     function clearNoTcpDataReceivedTimer(ipv4Adress) {
         clearTimeout(noTcpDataReceivedTimer[ipv4Adress]);
+    }
+
+    function addKinectToTable(id, ipv4Adress) {
+        var tableHTMLContent = '<tr id="kinect' + id + '" source="' + ipv4Adress + '">' +
+            '<th>' + id + '</th>' +
+            '<td class="clientStatus"></td>' +
+            '<td class="kinectStatus"></td>' +
+            '<td class="kinectTrackingData"></td>' +
+            '<td class="sourceIP">' + ipv4Adress + '</td>' +
+            '<td class="trackingGestures"></td>' +
+            '<td class="trackingGesturePosition"></td>' +
+            '</tr>';
+
+        $('#kinectData tbody').append(tableHTMLContent);
+    }
+
+    function removeKinectFromTable(ipv4adress) {
+        $('[source="' + ipv4adress + '"]').remove();
     }
 
 });
@@ -152,10 +194,23 @@ function deleteGestureFile(file) {
     }
 }
 
-function untrackGestureFile(file){
+function untrackGestureFile(file) {
     socket.emit('untrack_gesture_file', file);
 }
 
-function trackGestureFile(file){
+function trackGestureFile(file) {
     socket.emit('track_gesture_file', file);
+}
+
+function updateRoomSettings() {
+
+    $('#save-room-settings-btn').attr("disabled", "true");
+
+    let width = $("#room-width").val();
+    let length = $("#room-length").val();
+
+    socket.emit('update_room_settings', {
+        width: width,
+        length: length
+    });
 }

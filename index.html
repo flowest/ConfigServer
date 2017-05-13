@@ -35,33 +35,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr id="kinect1" source="">
-                        <th>1</th>
-                        <td class="clientStatus"></td>
-                        <td class="kinectStatus"></td>
-                        <td class="kinectTrackingData"></td>
-                        <td class="sourceIP"></td>
-                        <td class="trackingGestures"></td>
-                        <td class="trackingGesturePosition"></td>
-                    </tr>
-                    <tr id="kinect2" source="">
-                        <th>2</th>
-                        <td class="clientStatus"></td>
-                        <td class="kinectStatus"></td>
-                        <td class="kinectTrackingData"></td>
-                        <td class="sourceIP"></td>
-                        <td class="trackingGestures"></td>
-                        <td class="trackingGesturePosition"></td>
-                    </tr>
-                    <tr id="kinect3" source="">
-                        <th>3</th>
-                        <td class="clientStatus"></td>
-                        <td class="kinectStatus"></td>
-                        <td class="kinectTrackingData"></td>
-                        <td class="sourceIP"></td>
-                        <td class="trackingGestures"></td>
-                        <td class="trackingGesturePosition"></td>
-                    </tr>
+                    <!--content rendered in index.js-->
                 </tbody>
             </table>
         </div>
@@ -88,10 +62,35 @@
             </div>
         </div>
     </div>
+    <br/>
     <div class="container">
-        <div class="room">
-            <div id="person">
-                
+        <hr/>
+        <div class="row">
+            <div class="col-lg-12">
+                <h1>SmartSpace</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="input-group">
+                    <span class="input-group-addon" id="width-addon">width in cm</span>
+                    <input type="number" id="room-width" class="form-control" aria-describedby="width-addon">
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="input-group">
+                    <span class="input-group-addon" id="length-addon">length in cm</span>
+                    <input type="number" id="room-length" class="form-control" aria-describedby="length-addon">
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <button class="btn btn-primary" id="save-room-settings-btn" onclick="updateRoomSettings()" disabled="ture">save settings</button>
+            </div>
+        </div>
+        <br/>
+        <div id="room">
+            <div class="person">
+                <div class="person-label">kinect ID</div>
             </div>
         </div>
     </div>

@@ -1,5 +1,5 @@
 var ioSocket;
-var protobuf = require('protobufjs');
+const protobuf = require('protobufjs');
 
 var TcpData = null;
 protobuf.load("proto_files/TcpData.proto", function (err, root) {

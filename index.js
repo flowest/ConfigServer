@@ -1,12 +1,12 @@
-var express = require('express');
-var app = express();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+const express = require('express');
+const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 const dgram = require('dgram');
-var net = require('net');
+const net = require('net');
 const kinectDataUdpSocket = dgram.createSocket('udp4');
 
-var fs = require('fs');
+const fs = require('fs');
 
 const kinectClients = require("./server_scripts/kinect_clients");
 kinectClients.init(io);
@@ -15,8 +15,11 @@ const gestureFiles = require("./server_scripts/gesture_files");
 gestureFiles.init(io);
 
 
+var roomSettings = JSON.parse(fs.readFileSync("./room_settings/room.json", "utf8"));
+
+
 //load the proto files
-var protobuf = require('protobufjs');
+const protobuf = require('protobufjs');
 var KinectData = null;
 protobuf.load("proto_files/KinectData.proto", function (err, root) {
   if (err) {
@@ -38,10 +41,10 @@ protobuf.load("proto_files/TcpData.proto", function (err, root) {
 app.use(express.static('public'));
 
 //module for file upload (.dat gesture file that is spread to kinect clients)
-var multer = require('multer');
+const multer = require('multer');
 const GESTURE_DIRECTORY = "./uploads/";
-var multerStorageConfig = multer.memoryStorage();
-var upload = multer({ storage: multerStorageConfig });
+const multerStorageConfig = multer.memoryStorage();
+const upload = multer({ storage: multerStorageConfig });
 
 
 kinectDataUdpSocket.on('error', (err) => {
@@ -57,6 +60,7 @@ kinectDataUdpSocket.on('message', (msg, rinfo) => {
   var dataForClient = {
     "kinectData": dataFromKinect,
     "sourceIP": rinfo.address,
+    "ID": rinfo.address.split('.')[3]
   };
 
   io.emit('kinect_update_data', dataForClient);
@@ -77,9 +81,12 @@ var tcp_server = net.createServer(function (tcpSocket) {
 
   kinectClients.broadcastTcpDataToClients(payload);
 
+  let ip4Adress = kinectClients.IP6toIP4(tcpSocket.remoteAddress);
+
   io.emit('tcp_client_connection_update', {
     status: "connect",
-    ipv4Adress: kinectClients.IP6toIP4(tcpSocket.remoteAddress)
+    ipv4Adress: ip4Adress,
+    ID: ip4Adress.split('.')[3]
   });
   console.log("new client: " + tcpSocket.remoteAddress);
 
@@ -158,6 +165,17 @@ io.on('connection', function (socket) {
   socket.on('track_gesture_file', function (gestureFileName) {
     gestureFiles.trackGestureFile(gestureFileName);
   });
+
+  socket.on('get_room_settings', function () {
+    sendRoomSettingsToClient();
+  });
+
+  socket.on('update_room_settings', function (newSettings) {
+    roomSettings = newSettings;
+    fs.writeFileSync("./room_settings/room.json", JSON.stringify(newSettings), "utf8");
+    sendRoomSettingsToClient();
+    console.log("updated room settings");
+  });
 });
 
 app.get('/', function (req, res) {
@@ -181,6 +199,13 @@ app.post('/upload_dat', upload.any(), function (req, res, next) {
 http.listen(3000, function () {
   console.log('http server listening on *:3000');
 });
+
+function sendRoomSettingsToClient() {
+  io.emit('send_room_settings', {
+    width: roomSettings.width,
+    length: roomSettings.length
+  });
+}
 
 
 function checkIfFileExists(fileDirectory) {
