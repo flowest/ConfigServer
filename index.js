@@ -8,6 +8,12 @@ const kinectDataUdpSocket = dgram.createSocket('udp4');
 
 var fs = require('fs');
 
+const kinectClients = require("./server_scripts/kinect_clients");
+kinectClients.init(io);
+
+const gestureFiles = require("./server_scripts/gesture_files");
+gestureFiles.init(io);
+
 
 //load the proto files
 var protobuf = require('protobufjs');
@@ -60,33 +66,32 @@ kinectDataUdpSocket.bind(1337);
 
 
 //listening tcp socket for client programm
-var connectedClients = [];
 var tcp_server = net.createServer(function (tcpSocket) {
 
-  connectedClients.push(tcpSocket);
+  kinectClients.addClient(tcpSocket);
 
   var payload = {
     dataType: "GestureFilesSync",
     gestureFilesOnServer: { files: fs.readdirSync(GESTURE_DIRECTORY) }
   }
 
-  broadcastTcpDataToClients(payload);
+  kinectClients.broadcastTcpDataToClients(payload);
 
   io.emit('tcp_client_connection_update', {
     status: "connect",
-    ipv4Adress: IP6toIP4(tcpSocket.remoteAddress)
+    ipv4Adress: kinectClients.IP6toIP4(tcpSocket.remoteAddress)
   });
   console.log("new client: " + tcpSocket.remoteAddress);
 
   tcpSocket.on('end', function () {
-    removeClientFromList(this);
+    kinectClients.removeClientFromList(this);
     console.log("ended connection");
   });
 
   tcpSocket.on('error', function (error) {
     //console.log(error);
     console.log("lost connection");
-    removeClientFromList(this);
+    kinectClients.removeClientFromList(this);
   });
 
   tcpSocket.on('data', function (data) {
@@ -94,7 +99,7 @@ var tcp_server = net.createServer(function (tcpSocket) {
 
     if (tcp_data.dataType == "AliveSignal") {
       io.emit('tcp_client_data', {
-        ipv4Adress: IP6toIP4(tcpSocket.remoteAddress)
+        ipv4Adress: kinectClients.IP6toIP4(tcpSocket.remoteAddress)
       });
     }
     else if (tcp_data.dataType == "DownloadMissingGestureFilesRequest") {
@@ -103,7 +108,7 @@ var tcp_server = net.createServer(function (tcpSocket) {
         var fileBuffer = fs.readFileSync(GESTURE_DIRECTORY + missingFile);
         var jochen = tcpSocket;
 
-        sendMissingGestureFileToClient(fileBuffer,missingFile,tcpSocket)
+        gestureFiles.sendMissingGestureFileToClient(fileBuffer, missingFile, tcpSocket)
       })
     }
   });
@@ -135,23 +140,23 @@ io.on('connection', function (socket) {
 
     var test = TcpData.decode(buffer);
 
-    broadcastTcpDataToClients(buffer);
+    kinectClients.broadcastTcpDataToClients(buffer);
   });
 
   socket.on('get_gesture_files', function (data) {
-    io.emit('saved_gesture_files', loadGestureFiles());
+    io.emit('saved_gesture_files', gestureFiles.loadGestureFiles());
   });
 
   socket.on('remove_gesture_file', function (gestureFileName) {
-    removeGestureFile(gestureFileName);
+    gestureFiles.removeGestureFile(gestureFileName);
   });
 
   socket.on('untrack_gesture_file', function (gestureFileName) {
-    untrackGestureFile(gestureFileName);
+    gestureFiles.untrackGestureFile(gestureFileName);
   });
 
   socket.on('track_gesture_file', function (gestureFileName) {
-    trackGestureFile(gestureFileName);
+    gestureFiles.trackGestureFile(gestureFileName);
   });
 });
 
@@ -166,7 +171,7 @@ app.get('/', function (req, res) {
 app.post('/upload_dat', upload.any(), function (req, res, next) {
   saveAndDistributeNewGestureFile(req.files[0].buffer, req.files[0].originalname);
   res.redirect('/');
-  io.emit('saved_gesture_files', loadGestureFiles());
+  io.emit('saved_gesture_files', gestureFiles.loadGestureFiles());
 });
 
 // io.on('connection', function(socket){
@@ -191,15 +196,6 @@ function checkIfFileExists(fileDirectory) {
   });
 }
 
-function removeClientFromList(socket) {
-  connectedClients.splice(connectedClients.indexOf(socket), 1);
-  io.emit('tcp_client_connection_update', {
-    status: "disconnect",
-    ipv4Adress: IP6toIP4(socket.remoteAddress)
-  });
-  console.log("client removed");
-}
-
 function saveAndDistributeNewGestureFile(buffer, gestureFileName) {
   if (checkIfFileExists(GESTURE_DIRECTORY + gestureFileName) == true) {
     fs.unlinkSync(GESTURE_DIRECTORY + gestureFileName);
@@ -214,75 +210,7 @@ function saveAndDistributeNewGestureFile(buffer, gestureFileName) {
           fileName: gestureFileName
         }
       }
-      broadcastTcpDataToClients(payload);
+      kinectClients.broadcastTcpDataToClients(payload);
     }
   });
-}
-
-function broadcastTcpDataToClients(payload) {
-
-  var err = TcpData.verify(payload);
-  if (err)
-    throw Error(err)
-
-  var protoBuffer = TcpData.encode(payload).finish();
-
-  connectedClients.forEach(function (clientSocket) {
-    clientSocket.write(protoBuffer);
-  });
-}
-
-function IP6toIP4(ip6Adress) {
-  var ip6AdressParts = ip6Adress.split(':');
-  return ip6AdressParts[ip6AdressParts.length - 1];
-}
-
-function loadGestureFiles() {
-  return fs.readdirSync(GESTURE_DIRECTORY);
-}
-
-function removeGestureFile(gestureFileName) {
-  var payload = {
-    dataType: 'RemoveGestureFile',
-    gestureFileNameForAction: gestureFileName
-  };
-
-  broadcastTcpDataToClients(payload);
-  fs.unlinkSync(GESTURE_DIRECTORY + "/" + gestureFileName);
-  io.emit('saved_gesture_files', loadGestureFiles());
-}
-
-function untrackGestureFile(gestureFileName) {
-  var payload = {
-    dataType: 'UntrackGestureFile',
-    gestureFileNameForAction: gestureFileName
-  };
-
-  broadcastTcpDataToClients(payload);
-}
-
-function trackGestureFile(gestureFileName) {
-  var payload = {
-    dataType: 'TrackGestureFile',
-    gestureFileNameForAction: gestureFileName
-  };
-
-  broadcastTcpDataToClients(payload);
-}
-
-function sendMissingGestureFileToClient(fileBuffer, gestureFileName, clientSocket) {
-  var payload = {
-    dataType: 'NewGestureFile',
-    gestureFile: {
-      gestureFileBuffer: fileBuffer,
-      fileName: gestureFileName
-    }
-  }
-
-  var err = TcpData.verify(payload);
-  if (err)
-    throw Error(err)
-
-  var protoBuffer = TcpData.encode(payload).finish();
-  clientSocket.write(protoBuffer);
 }
