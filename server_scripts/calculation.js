@@ -16,9 +16,10 @@ const matrix = math.matrix([
 module.exports = {
 
     translate: function (positionVector) {
-        let vector = math.matrix(positionVector);
-        let result = math.multiply(matrix, vector);
+        let vector = math.matrix([positionVector.x, positionVector.y, positionVector.z, 1]);
+        let result = math.multiply(matrix, vector)._data;
 
-        return result._data;
+        let translatedVector = { x: result[0], y: result[1], z: result[2] };
+        return translatedVector;
     }
 }

@@ -60,10 +60,12 @@ kinectDataUdpSocket.on('error', (err) => {
 kinectDataUdpSocket.on('message', (msg, rinfo) => {
   //console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
   var dataFromKinect = KinectData.decode(msg);
+  let translatedVector = math.translate(dataFromKinect.positionTracked);
   var dataForClient = {
     "kinectData": dataFromKinect,
     "sourceIP": rinfo.address,
-    "ID": rinfo.address.split('.')[3]
+    "ID": rinfo.address.split('.')[3],
+    "translatedPosition": translatedVector
   };
 
   io.emit('kinect_update_data', dataForClient);

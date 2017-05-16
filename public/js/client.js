@@ -57,13 +57,15 @@ $(function () {
         startNoUdpKinectDataReceivedTimer(data.ID);
 
         if (data.kinectData.isTrackingBody) {
-            $('.person').css({ display: 'block' });
-            $('.person').css({ top: data.kinectData.positionTracked.z * 100 + 'px', left:data.kinectData.positionTracked.x * 100 + 'px' });
-
-            $('.person .person-label').html(data.ID);
+            if ($("#room #kinect" + data.ID).length === 0) {
+                $("#room").append('<div class="person" id="kinect' + data.ID + '"><div class="person-label">' + data.ID + '</div></div>');;
+            }
+            $('.person#kinect' + data.ID).css({ top: data.translatedPosition.z * 100 + 'px', left: data.translatedPosition.x * 100 + 'px' }); //*100 to parse meter from kinect to cm
         }
         else {
-            // $('.person').css({ display: 'none' });
+            if ($("#room #kinect" + data.ID).length === 1) {
+                $("#kinect" + data.ID).remove();
+            }
         }
 
         //test code
@@ -185,7 +187,7 @@ function validateSingleInput(oInput) {
 socket.emit('get_gesture_files');
 
 function sendDataToServer() {
-    socket.emit("test_sending", { positionVector: [1,0,0,1] });
+    socket.emit("test_sending", { positionVector: [1, 0, 0, 1] });
 }
 
 function deleteGestureFile(file) {
