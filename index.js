@@ -14,10 +14,11 @@ kinectClients.init(io);
 const gestureFiles = require("./server_scripts/gesture_files");
 gestureFiles.init(io);
 
+const room = require("./server_scripts/room");
+room.init(io);
+
 const math = require("./server_scripts/calculation");
 
-
-var roomSettings = JSON.parse(fs.readFileSync("./room_settings/room.json", "utf8"));
 
 
 //load the proto files
@@ -135,7 +136,7 @@ io.on('connection', function (socket) {
 
   socket.on("test_sending", function (data) {
     //console.log(data);
-    
+
     console.log(math.translate(data.positionVector));
 
   });
@@ -157,13 +158,12 @@ io.on('connection', function (socket) {
   });
 
   socket.on('get_room_settings', function () {
-    sendRoomSettingsToClient();
+    room.sendRoomSettingsToClient();
   });
 
   socket.on('update_room_settings', function (newSettings) {
-    roomSettings = newSettings;
-    fs.writeFileSync("./room_settings/room.json", JSON.stringify(newSettings), "utf8");
-    sendRoomSettingsToClient();
+    room.updateRoomSettings(newSettings);
+    room.sendRoomSettingsToClient();
     console.log("updated room settings");
   });
 });
@@ -190,12 +190,6 @@ http.listen(3000, function () {
   console.log('http server listening on *:3000');
 });
 
-function sendRoomSettingsToClient() {
-  io.emit('send_room_settings', {
-    width: roomSettings.width,
-    length: roomSettings.length
-  });
-}
 
 
 function checkIfFileExists(fileDirectory) {
