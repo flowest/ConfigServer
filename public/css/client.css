@@ -15,6 +15,7 @@ hr{
 #room{
     border: 1px solid;
     border-color: black;
+    background-color: #ccc;
     margin-bottom: 500px;
 
     height: 100px;

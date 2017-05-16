@@ -14,6 +14,8 @@ kinectClients.init(io);
 const gestureFiles = require("./server_scripts/gesture_files");
 gestureFiles.init(io);
 
+const math = require("./server_scripts/calculation");
+
 
 var roomSettings = JSON.parse(fs.readFileSync("./room_settings/room.json", "utf8"));
 
@@ -132,22 +134,10 @@ tcp_server.listen(8000, function () {
 io.on('connection', function (socket) {
 
   socket.on("test_sending", function (data) {
-    console.log(data);
+    //console.log(data);
+    
+    console.log(math.translate(data.positionVector));
 
-    var payload = {
-      dataType: 'AliveSignal',
-      aliveSignal: { message: 'Hello form node!' }
-    };
-
-    var err = TcpData.verify(payload);
-    if (err)
-      throw Error(err)
-
-    var buffer = TcpData.encode(payload).finish();
-
-    var test = TcpData.decode(buffer);
-
-    kinectClients.broadcastTcpDataToClients(buffer);
   });
 
   socket.on('get_gesture_files', function (data) {

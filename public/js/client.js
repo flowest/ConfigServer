@@ -58,7 +58,7 @@ $(function () {
 
         if (data.kinectData.isTrackingBody) {
             $('.person').css({ display: 'block' });
-            $('.person').css({ top: data.kinectData.positionTracked.z * 100 + 'px', left: 500 + data.kinectData.positionTracked.x * 100 + 'px' });
+            $('.person').css({ top: data.kinectData.positionTracked.z * 100 + 'px', left:data.kinectData.positionTracked.x * 100 + 'px' });
 
             $('.person .person-label').html(data.ID);
         }
@@ -185,7 +185,7 @@ function validateSingleInput(oInput) {
 socket.emit('get_gesture_files');
 
 function sendDataToServer() {
-    socket.emit("test_sending", { hello: 'world' });
+    socket.emit("test_sending", { positionVector: [1,0,0,1] });
 }
 
 function deleteGestureFile(file) {
