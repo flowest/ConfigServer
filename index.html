@@ -9,6 +9,9 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+
     <script src="/js/client.js"></script>
 </head>
 
@@ -88,7 +91,57 @@
             </div>
         </div>
         <br/>
+        <div class="row">
+            <div class="col-lg-12" id="kienctSettings">
+                <!-- Button to config kinects injected from clien.js -->
+            </div>
+        </div>
+        <br/>
         <div id="room">
+        </div>
+    </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="configModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modalLabel">Modal title</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <p id="settings-kinectID"></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="kinect-x-pos-addon">x in cm</span>
+                                <input type="number" id="kinect-x-pos" class="form-control" aria-describedby="kinect-x-pos-addon">
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="kinect-y-pos-addon">y in cm</span>
+                                <input type="number" id="kinect-y-pos" class="form-control" aria-describedby="kinect-y-pos-addon">
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="kinect-rotation-addon">rotation in degrees</span>
+                                <input type="number" id="kinect-rotation" class="form-control" aria-describedby="kinect-rotation-addon">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="save-kinect-settings-btn" disabled="true" onclick="updateKinectSettings()" >Save changes</button>
+                </div>
+            </div>
         </div>
     </div>
 </body>

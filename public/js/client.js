@@ -7,6 +7,7 @@ $(function () {
     const TCP_DISCONNECT_TIMEOUT_MILLISECONDS = 10000;
 
     socket.emit('get_room_settings');
+    socket.emit('get_kinect_settings');
 
     socket.on('send_room_settings', function (roomSettings) {
         $('#save-room-settings-btn').removeAttr("disabled");
@@ -15,6 +16,27 @@ $(function () {
         $("#room-length").val(roomSettings.length);
 
         $("#room").css({ width: roomSettings.width + 'px', height: roomSettings.length + 'px' });
+    });
+
+
+    socket.on('send_kinect_settings', function (kinectSettings) {
+
+        $("#save-kinect-settings-btn").removeAttr("disabled");;
+        $("#configModal").modal('hide');
+
+        $('#kienctSettings').empty();
+
+        kinectSettings.forEach(setting => {
+            var buttonHTML = $('<button type="button" class="btn btn-primary kinectConfigButton" data-toggle="modal" data-target="#configModal">' + setting.name + '</button>');
+            buttonHTML.on('click', this, function () {
+
+                $("#kinect-x-pos").val(setting.content.position.x);
+                $("#kinect-y-pos").val(setting.content.position.y);
+                $("#kinect-rotation").val(setting.content.rotation);
+                $("#settings-kinectID").text(setting.name);
+            });
+            $('#kienctSettings').append(buttonHTML);
+        });
     });
 
     socket.on('saved_gesture_files', function (gestureFiles) {
@@ -214,5 +236,20 @@ function updateRoomSettings() {
     socket.emit('update_room_settings', {
         width: width,
         length: length
+    });
+}
+
+function updateKinectSettings() {
+    $("#save-kinect-settings-btn").attr("disabled", "true");
+
+    var newXPos = $("#kinect-x-pos").val();
+    var newYPos = $("#kinect-y-pos").val();
+    var newRotation = $("#kinect-rotation").val();
+    var fileName = $("#settings-kinectID").text();
+    socket.emit('update_kinect_setting', {
+        newXPos: newXPos,
+        newYPos: newYPos,
+        newRotation: newRotation,
+        fileName: fileName
     });
 }

@@ -168,6 +168,16 @@ io.on('connection', function (socket) {
     room.sendRoomSettingsToClient();
     console.log("updated room settings");
   });
+
+  socket.on('get_kinect_settings', function () {
+    room.sendKinectSettingsToClient();
+  });
+
+  socket.on('update_kinect_setting', function (newSettings) {
+    room.updateKinectSettings(newSettings);
+    room.sendKinectSettingsToClient();
+    console.log("updated kinect settings" + newSettings.fileName);
+  });
 });
 
 app.get('/', function (req, res) {
