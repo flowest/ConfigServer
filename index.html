@@ -58,12 +58,12 @@
                 <div class="list-group" id="currentTrackingGestures"></div>
             </div>
         </div>
-        <hr>
+        <!--<hr>
         <div class="row">
             <div class="col-lg-12">
                 <button class="btn btn-primary" onclick="sendDataToServer()">Send</button>
             </div>
-        </div>
+        </div>-->
     </div>
     <br/>
     <div class="container">
@@ -74,6 +74,9 @@
             </div>
         </div>
         <div class="row">
+            <div class="col-lg-12">
+                <h3>Room Settings</h3>
+            </div>
             <div class="col-lg-3">
                 <div class="input-group">
                     <span class="input-group-addon" id="width-addon">width in cm</span>
@@ -87,22 +90,37 @@
                 </div>
             </div>
             <div class="col-lg-3">
-                <button class="btn btn-primary" id="save-room-settings-btn" onclick="updateRoomSettings()" disabled="ture">save settings</button>
+                <button class="btn btn-primary" id="save-room-settings-btn" onclick="updateRoomSettings()" disabled="ture">Save Settings</button>
             </div>
         </div>
         <br/>
         <div class="row">
+            <div class="col-lg-12">
+                <h3>Kinect Settings</h3>
+            </div>
+
+            <div class="col-lg-12">
+                <button class="btn btn-success kinectConfigButton" id="add-kinect-settings-btn">Add Kinect Setting</button>
+                <button class="btn btn-danger kinectConfigButton" id="delete-kinect-settings-btn">Delete Kinect Setting</button>
+                <br/>
+                <br/>
+            </div>
             <div class="col-lg-12" id="kienctSettings">
                 <!-- Button to config kinects injected from clien.js -->
             </div>
         </div>
-        <br/>
+        <div class="row">
+            <div class="col-lg-12">
+                <h3>Laboratory Setup</h3>
+            </div>
+        </div>
         <div id="room">
         </div>
     </div>
 
 
-    <!-- Modal -->
+    <!-- Modals -->
+    <!-- Changes settings -->
     <div class="modal fade" id="configModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -139,7 +157,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="save-kinect-settings-btn" disabled="true" onclick="updateKinectSettings()" >Save changes</button>
+                    <button type="button" class="btn btn-primary" id="save-kinect-settings-btn" disabled="true" onclick="updateKinectSettings()">Save changes</button>
                 </div>
             </div>
         </div>
