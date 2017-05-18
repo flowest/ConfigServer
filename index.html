@@ -100,8 +100,7 @@
             </div>
 
             <div class="col-lg-12">
-                <button class="btn btn-success kinectConfigButton" id="add-kinect-settings-btn">Add Kinect Setting</button>
-                <button class="btn btn-danger kinectConfigButton" id="delete-kinect-settings-btn">Delete Kinect Setting</button>
+                <button class="btn btn-success" id="add-kinect-settings-btn" data-toggle="modal" data-target="#newSettingsModal">Add Kinect Setting</button>
                 <br/>
                 <br/>
             </div>
@@ -126,7 +125,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="modalLabel">Modal title</h4>
+                    <h4 class="modal-title" id="modalLabel">Edit Kinect Settings</h4>
                 </div>
                 <div class="modal-body">
                     <div class="row">
@@ -158,6 +157,56 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" id="save-kinect-settings-btn" disabled="true" onclick="updateKinectSettings()">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add new settings -->
+    <div class="modal fade" id="newSettingsModal" tabindex="-1" role="dialog" aria-labelledby="newSettingsModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="newSettingsModalLabel">Add New Settings File</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="new-settings-kinect-id-addon">ID of the Kinect*</span>
+                                <input type="number" id="new-settings-kinect-id" class="form-control" aria-describedby="new-settings-kinect-id-addon">
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <p>*last three numbers of IP-Adress from the machine Kinect is running on</p>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="new-settings-kinect-x-pos-addon">x in cm</span>
+                                <input type="number" id="new-settings-kinect-x-pos" class="form-control" aria-describedby="new-settings-kinect-x-pos-addon">
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="new-settings-kinect-y-pos-addon">y in cm</span>
+                                <input type="number" id="new-settings-kinect-y-pos" class="form-control" aria-describedby="new-settings-kinect-y-pos-addon">
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="new-settings-kinect-rotation-addon">rotation in degrees</span>
+                                <input type="number" id="new-settings-kinect-rotation" class="form-control" aria-describedby="new-settings-kinect-rotation-addon">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="save-new-kinect-settings-btn" onclick="saveNewKinectSettings()">Save changes</button>
                 </div>
             </div>
         </div>

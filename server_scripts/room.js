@@ -56,6 +56,10 @@ module.exports = {
         };
 
         fs.writeFileSync(PATH_TO_KINECTSETTINGS + newSettings.fileName, JSON.stringify(settings), "utf8");
+    },
+
+    deleteKinectSettings: function (fileName) {
+        fs.unlinkSync(PATH_TO_KINECTSETTINGS + "/" + fileName);
     }
 
 }

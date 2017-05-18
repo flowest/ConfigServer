@@ -22,13 +22,19 @@ $(function () {
     socket.on('send_kinect_settings', function (kinectSettings) {
 
         $("#save-kinect-settings-btn").removeAttr("disabled");;
+        $("#save-new-kinect-settings-btn").removeAttr("disabled");
         $("#configModal").modal('hide');
+        $("#newSettingsModal").modal('hide');
 
         $('#kienctSettings').empty();
 
         kinectSettings.forEach(setting => {
-            var buttonHTML = $('<button type="button" class="btn btn-primary kinectConfigButton" data-toggle="modal" data-target="#configModal">' + setting.name + '</button>');
-            buttonHTML.on('click', this, function () {
+            var buttonHTML = $('<div class="btn-group kinectConfigButtonGroup" role="group">' +
+                '<button type="button" class="btn btn-primary kinectConfigButton" data-toggle="modal" data-target="#configModal">' + setting.name + '</button>' +
+                '<button type="button" class="btn btn-danger" onclick="deleteKinectSettingFile(\'' + setting.name + '\')">&times;</button>' +
+                '</div>');
+
+            buttonHTML.on('click', ".kinectConfigButton", function () {
 
                 $("#kinect-x-pos").val(setting.content.position.x);
                 $("#kinect-y-pos").val(setting.content.position.y);
@@ -252,4 +258,30 @@ function updateKinectSettings() {
         newRotation: newRotation,
         fileName: fileName
     });
+}
+
+function saveNewKinectSettings() {
+    var newXPos = $("#new-settings-kinect-x-pos").val();
+    var newYPos = $("#new-settings-kinect-y-pos").val();
+    var newRotation = $("#new-settings-kinect-rotation").val();
+    var fileName = $("#new-settings-kinect-id").val().replace(".", "").replace(",", "") + ".json";
+
+    $("#new-settings-kinect-x-pos").val("");
+    $("#new-settings-kinect-y-pos").val("");
+    $("#new-settings-kinect-rotation").val("");
+    $("#new-settings-kinect-id").val("");
+
+    socket.emit('new_kinect_setting', {
+        newXPos: newXPos,
+        newYPos: newYPos,
+        newRotation: newRotation,
+        fileName: fileName
+    });
+}
+
+function deleteKinectSettingFile(fileName) {
+
+    if (confirm("Delete " + fileName + "?")) {
+        socket.emit('delete_kinect_settings', fileName);
+    }
 }

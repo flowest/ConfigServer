@@ -178,6 +178,18 @@ io.on('connection', function (socket) {
     room.sendKinectSettingsToClient();
     console.log("updated kinect settings" + newSettings.fileName);
   });
+
+  socket.on('new_kinect_setting', function (newSettings) {
+    room.updateKinectSettings(newSettings);
+    room.sendKinectSettingsToClient();
+    console.log("added new kinect settings" + newSettings.fileName);
+  });
+
+  socket.on('delete_kinect_settings', function (fileName) {
+    room.deleteKinectSettings(fileName);
+    room.sendKinectSettingsToClient();
+    console.log("removed " + fileName);
+  })
 });
 
 app.get('/', function (req, res) {
