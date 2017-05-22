@@ -30,8 +30,22 @@ hr{
     border-radius: 15px; 
 }
 
+.device{
+    position: relative;
+    height: 15px;
+    width: 45px;
+    background-color: black;
+    top: 0;
+    left: 0;
+}
+
 .person-label{
     padding-top: 30px;
+}
+
+.device-label{
+    color: white;
+    text-align: center;
 }
 
 .kinectConfigButtonGroup{

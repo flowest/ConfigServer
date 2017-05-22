@@ -26,9 +26,11 @@ $(function () {
         $("#configModal").modal('hide');
         $("#newSettingsModal").modal('hide');
 
+
         $('#kienctSettings').empty();
 
         kinectSettings.forEach(setting => {
+
             var buttonHTML = $('<div class="btn-group kinectConfigButtonGroup" role="group">' +
                 '<button type="button" class="btn btn-primary kinectConfigButton" data-toggle="modal" data-target="#configModal">' + setting.name + '</button>' +
                 '<button type="button" class="btn btn-danger" onclick="deleteKinectSettingFile(\'' + setting.name + '\')">&times;</button>' +
@@ -84,15 +86,23 @@ $(function () {
 
         startNoUdpKinectDataReceivedTimer(data.ID);
 
+
+        if ($("#room #devices #kinect_device" + data.ID).length === 0) {
+            $("#room #devices").append('<div class="device" id="kinect_device' + data.ID + '"><div class="device-label">' + data.ID + '</div></div>');
+        }
+
+        var rotation = (360 - parseInt(data.kinectPosition.rotation));
+        $(".device#kinect_device" + data.ID).css({ top: data.kinectPosition.y * 100 + 'px', left: data.kinectPosition.x * 100 + 'px', transform: 'rotate(' + rotation  + 'deg)' }); //*100 to parse meter from kinect to cm
+
         if (data.kinectData.isTrackingBody) {
-            if ($("#room #kinect" + data.ID).length === 0) {
-                $("#room").append('<div class="person" id="kinect' + data.ID + '"><div class="person-label">' + data.ID + '</div></div>');;
+            if ($("#room #kinect_person" + data.ID).length === 0) {
+                $("#room").append('<div class="person" id="kinect_person' + data.ID + '"><div class="person-label">' + data.ID + '</div></div>');
             }
-            $('.person#kinect' + data.ID).css({ top: data.translatedPosition.z * 100 + 'px', left: data.translatedPosition.x * 100 + 'px' }); //*100 to parse meter from kinect to cm
+            $('.person#kinect_person' + data.ID).css({ top: data.translatedPosition.z * 100 + 'px', left: data.translatedPosition.x * 100 + 'px' }); //*100 to parse meter from kinect to cm
         }
         else {
-            if ($("#room #kinect" + data.ID).length === 1) {
-                $("#kinect" + data.ID).remove();
+            if ($("#room #kinect_person" + data.ID).length === 1) {
+                $("#kinect_person" + data.ID).remove();
             }
         }
 
@@ -109,6 +119,9 @@ $(function () {
         if (tcpClientData.status == "disconnect") {
             $('tr[source="' + tcpClientData.ipv4Adress + '"] .clientStatus').removeClass('success');
             $('tr[source="' + tcpClientData.ipv4Adress + '"] .clientStatus').addClass('danger');
+
+            $("#kinect_device" + tcpClientData.ipv4Adress.split('.')[3]).remove();
+            $("#kinect_person" + tcpClientData.ipv4Adress.split('.')[3]).remove();
 
             removeKinectFromTable(tcpClientData.ipv4Adress);
         }

@@ -5,29 +5,28 @@ const PATH_TO_KINECTSETTINGS = "./room_settings/kinect_config/";
 
 var ioSocket;
 var roomSettings = JSON.parse(fs.readFileSync(PATH_TO_ROOMSETTINGS, "utf8"));
-var kinectConfigFiles = loadKinectConfigFiles();
 
-function loadKinectConfigFiles() {
-    var files = [];
-    fs.readdirSync(PATH_TO_KINECTSETTINGS).forEach(file => {
-        var config = {
-            name: file,
-            content: JSON.parse(fs.readFileSync(PATH_TO_KINECTSETTINGS + file, "utf8"))
-        };
-        files.push(config);
-    });
-
-    return files;
-}
 
 module.exports = {
 
-    kinectConfigFiles: kinectConfigFiles,
+    kinectConfigFiles: undefined,
 
-    loadKinectConfigFiles: loadKinectConfigFiles,
+    loadKinectConfigFiles: function () {
+        var files = [];
+        fs.readdirSync(PATH_TO_KINECTSETTINGS).forEach(file => {
+            var config = {
+                name: file,
+                content: JSON.parse(fs.readFileSync(PATH_TO_KINECTSETTINGS + file, "utf8"))
+            };
+            files.push(config);
+        });
+
+        this.kinectConfigFiles = files;
+    },
 
     init: function (io) {
         ioSocket = io;
+        this.loadKinectConfigFiles();
     },
 
     sendRoomSettingsToClient: function () {
@@ -43,7 +42,7 @@ module.exports = {
     },
 
     sendKinectSettingsToClient: function () {
-        ioSocket.emit('send_kinect_settings', loadKinectConfigFiles())
+        ioSocket.emit('send_kinect_settings', this.kinectConfigFiles)
     },
 
     updateKinectSettings: function (newSettings) {
@@ -56,10 +55,12 @@ module.exports = {
         };
 
         fs.writeFileSync(PATH_TO_KINECTSETTINGS + newSettings.fileName, JSON.stringify(settings), "utf8");
+        this.loadKinectConfigFiles();
     },
 
     deleteKinectSettings: function (fileName) {
         fs.unlinkSync(PATH_TO_KINECTSETTINGS + "/" + fileName);
+        this.loadKinectConfigFiles();
     }
 
 }
