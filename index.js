@@ -61,12 +61,12 @@ kinectDataUdpSocket.on('message', (msg, rinfo) => {
   //console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
   var dataFromKinect = KinectData.decode(msg);
   let kinectID = rinfo.address.split('.')[3];
-  let translation = math.translate(dataFromKinect.positionTracked, kinectID);
+  let translation = math.translate(dataFromKinect.trackedBodies, kinectID);
   var dataForClient = {
     "kinectData": dataFromKinect,
     "sourceIP": rinfo.address,
     "ID": kinectID,
-    "translatedPosition": translation.translatedVector,
+    "translatedPositions": translation.translatedPositions,
     "kinectPosition": translation.kinectPosition
   };
 

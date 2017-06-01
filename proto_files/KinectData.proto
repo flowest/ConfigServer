@@ -1,16 +1,19 @@
 package BodyDataClient;
 
 message KinectData {
-   optional int32 ID = 1;
-   optional Vector3 positionTracked = 2;
-   optional bool isTrackingBody = 3 [default = false];
-   repeated string trackingGestureNames = 4;
-   optional string trackedGesture = 5;
-   optional Vector3 positionGestureTracked = 6;
+    optional int32 ID = 1;
+    repeated TrackedBody trackedBodies = 2;
+    repeated string trackingGestureNames = 3;
+}
+
+message TrackedBody {
+    optional Vector3 positionTracked = 1;
+    optional string trackedGesture = 2;
+    optional Vector3 positionGestureTracked = 3;
 }
 
 message Vector3 {
-	optional float x = 1;
-	optional float y = 2;
-	optional float z = 3;
+    optional float x = 1 [default = 0];
+    optional float y = 2 [default = 0];
+    optional float z = 3 [default = 0];
 }

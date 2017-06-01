@@ -4,7 +4,7 @@ const room = require("./room");
 
 module.exports = {
 
-    translate: function (positionVector, kinectID) {
+    translate: function (trackedBodies, kinectID) {
 
         var settingsForKinect = room.kinectConfigFiles.find(setting => {
             return setting.name == kinectID + ".json";
@@ -51,12 +51,21 @@ module.exports = {
 
         const resultMatrix = math.multiply(translationMatrix, rotationMatrix);
 
-        let vector = math.matrix([positionVector.x, positionVector.y, positionVector.z, 1]);
-        let result = math.multiply(resultMatrix, vector)._data;
+        //do the math
 
-        let translatedVector = { x: result[0], y: result[1], z: result[2] };
+        let translatedPositions = [];
+
+        trackedBodies.forEach(function (body) {
+            let vector = math.matrix([body.positionTracked.x, body.positionTracked.y, body.positionTracked.z, 1]);
+            let result = math.multiply(resultMatrix, vector)._data;
+
+            translatedPositions.push({ x: result[0], y: result[1], z: result[2] });
+
+            translatedPositions.push({ x: result[0], y: result[1] +2 , z: result[2] + 2 });
+        });
+
         return {
-            translatedVector: translatedVector,
+            translatedPositions: translatedPositions,
             kinectPosition: {
                 x: settingsForKinect.content.position.x,
                 y: settingsForKinect.content.position.y,

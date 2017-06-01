@@ -64,10 +64,10 @@ $(function () {
 
         clearNoUdpKinectDataReceivedTimer(data.ID);
 
-        if (data.kinectData.isTrackingBody == true) {
+        if (data.kinectData.trackedBodies) {
             $('#kinectData #kinect' + data.ID + ' .kinectStatus').addClass('success');
             $('#kinectData #kinect' + data.ID + ' .kinectStatus').removeClass('danger');
-            $('#kinectData #kinect' + data.ID + ' .kinectTrackingData').text("[" + data.kinectData.positionTracked.x + ", " + data.kinectData.positionTracked.y + ", " + data.kinectData.positionTracked.z + "]");
+            //##############################$('#kinectData #kinect' + data.ID + ' .kinectTrackingData').text("[" + data.kinectData.positionTracked.x + ", " + data.kinectData.positionTracked.y + ", " + data.kinectData.positionTracked.z + "]");
         }
         else {
             $('#kinectData #kinect' + data.ID + ' .kinectStatus').removeClass('success');
@@ -92,25 +92,29 @@ $(function () {
         }
 
         var rotation = (360 - parseInt(data.kinectPosition.rotation));
-        $(".device#kinect_device" + data.ID).css({ top: data.kinectPosition.y * 100 + 'px', left: data.kinectPosition.x * 100 + 'px', transform: 'rotate(' + rotation  + 'deg)' }); //*100 to parse meter from kinect to cm
+        $(".device#kinect_device" + data.ID).css({ top: data.kinectPosition.y * 100 + 'px', left: data.kinectPosition.x * 100 + 'px', transform: 'rotate(' + rotation + 'deg)' }); //*100 to parse meter from kinect to cm
 
-        if (data.kinectData.isTrackingBody) {
-            if ($("#room #kinect_person" + data.ID).length === 0) {
-                $("#room").append('<div class="person" id="kinect_person' + data.ID + '"><div class="person-label">' + data.ID + '</div></div>');
-            }
-            $('.person#kinect_person' + data.ID).css({ top: data.translatedPosition.z * 100 + 'px', left: data.translatedPosition.x * 100 + 'px' }); //*100 to parse meter from kinect to cm
+        if (data.kinectData.trackedBodies) {
+            data.translatedPositions.forEach(function (positionVector, index) {
+
+                if ($("#room #kinect_person" + data.ID + "-" + index).length === 0) {
+                    $("#room").append('<div class="person" id="kinect_person' + data.ID + "-" + index + '"><div class="person-label">' + data.ID + "-" + index + '</div></div>');
+                }
+
+                $('.person#kinect_person' + data.ID + "-" + index).css({ top: positionVector.z * 100 + 'px', left: positionVector.x * 100 + 'px' }); //*100 to parse meter from kinect to cm 
+            });
         }
         else {
-            if ($("#room #kinect_person" + data.ID).length === 1) {
-                $("#kinect_person" + data.ID).remove();
+            if ($("#room [id^=kinect_person" + data.ID + "]").length > 1) {
+                $("[id^=kinect_person" + data.ID + "]").remove();
             }
         }
 
         //test code
-        if (data.kinectData.isTrackingBody && data.kinectData.trackedGesture != "") {
-            //alert(data.kinectData.trackedGesture);
-            $('#kinectData #kinect' + data.ID + ' .trackingGesturePosition').text("[" + data.kinectData.positionGestureTracked.x + ", " + data.kinectData.positionGestureTracked.y + ", " + data.kinectData.positionGestureTracked.z + "]");
-        }
+        // if (data.kinectData.trackedBodies && data.kinectData.trackedGesture != "") {
+        //     //alert(data.kinectData.trackedGesture);
+        //     //###############################$('#kinectData #kinect' + data.ID + ' .trackingGesturePosition').text("[" + data.kinectData.positionGestureTracked.x + ", " + data.kinectData.positionGestureTracked.y + ", " + data.kinectData.positionGestureTracked.z + "]");
+        // }
     });
 
 
