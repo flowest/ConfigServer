@@ -66,10 +66,12 @@ kinectDataUdpSocket.on('message', (msg, rinfo) => {
     "kinectData": dataFromKinect,
     "sourceIP": rinfo.address,
     "ID": kinectID,
-    "translatedPositions": translation.translatedPositions,
+    "translatedBodies": translation.translatedBodies,
     "kinectPosition": translation.kinectPosition,
-    "trackingBodiesCount" : dataFromKinect.trackedBodies.length
+    "trackingBodiesCount": dataFromKinect.trackedBodies.length
   };
+
+  dataForClient.translatedBodies = math.manageMerging(kinectID, translation.translatedBodies)
 
   io.emit('kinect_update_data', dataForClient);
 });

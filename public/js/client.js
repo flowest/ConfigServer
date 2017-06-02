@@ -94,27 +94,25 @@ $(function () {
         var rotation = (360 - parseInt(data.kinectPosition.rotation));
         $(".device#kinect_device" + data.ID).css({ top: data.kinectPosition.y * 100 + 'px', left: data.kinectPosition.x * 100 + 'px', transform: 'rotate(' + rotation + 'deg)' }); //*100 to parse meter from kinect to cm
 
-        if (data.kinectData.trackedBodies) {
-            data.translatedPositions.forEach(function (positionVector, index) {
+        var htmlString = $("<span id='personRenderer'></span>");
+        data.translatedBodies.forEach(function (body, index) {
+            htmlString.append('<div class="person" id="kinect_person' + "-" + index + '" style="top:' + body.z * 100 + 'px; left:' + body.x * 100 + 'px;"><div class="person-label">' + index + '</div></div>');
 
-                if ($("#room #kinect_person" + data.ID + "-" + index).length === 0) {
-                    $("#room").append('<div class="person" id="kinect_person' + data.ID + "-" + index + '"><div class="person-label">' + data.ID + "-" + index + '</div></div>');
-                }
+            if (body.trackedGesture) {
+                $('#kinectData #kinect' + data.ID + ' .trackingGesturePosition').append(body.trackedGesture + "@" + JSON.stringify({ x: body.x, y: body.y, z: body.x }) + "<br/>");
+            }
+        });
 
-                $('.person#kinect_person' + data.ID + "-" + index).css({ top: positionVector.z * 100 + 'px', left: positionVector.x * 100 + 'px' }); //*100 to parse meter from kinect to cm 
-            });
-
-            data.kinectData.trackedBodies.forEach(function (trackedBody, index) {
-                if (trackedBody.trackedGesture) {
-                    $('#kinectData #kinect' + data.ID + ' .trackingGesturePosition').append(trackedBody.trackedGesture + "@" + JSON.stringify(trackedBody.positionGestureTracked) + "<br/>");
-                }
-            });
+        if ($("#room #personRenderer").length === 0) {
+            $("#room").append(htmlString);
         }
         else {
-            if ($("#room [id^=kinect_person" + data.ID + "]").length > 1) {
-                $("[id^=kinect_person" + data.ID + "]").remove();
-            }
+            $("#room #personRenderer").replaceWith(htmlString);
         }
+
+        htmlString = null;
+
+
     });
 
 
@@ -123,9 +121,6 @@ $(function () {
         if (tcpClientData.status == "disconnect") {
             $('tr[source="' + tcpClientData.ipv4Adress + '"] .clientStatus').removeClass('success');
             $('tr[source="' + tcpClientData.ipv4Adress + '"] .clientStatus').addClass('danger');
-
-            $("#kinect_device" + tcpClientData.ipv4Adress.split('.')[3]).remove();
-            $("#kinect_person" + tcpClientData.ipv4Adress.split('.')[3]).remove();
 
             removeKinectFromTable(tcpClientData.ipv4Adress);
         }
