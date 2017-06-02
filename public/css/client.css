@@ -51,3 +51,9 @@ hr{
 .kinectConfigButtonGroup{
     margin-right: 15px;
 }
+
+.kinectTrackingData{
+    max-width: 480px;
+    min-width: 480px;
+    overflow-x: hidden;
+}

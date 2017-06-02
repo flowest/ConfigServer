@@ -67,7 +67,8 @@ kinectDataUdpSocket.on('message', (msg, rinfo) => {
     "sourceIP": rinfo.address,
     "ID": kinectID,
     "translatedPositions": translation.translatedPositions,
-    "kinectPosition": translation.kinectPosition
+    "kinectPosition": translation.kinectPosition,
+    "trackingBodiesCount" : dataFromKinect.trackedBodies.length
   };
 
   io.emit('kinect_update_data', dataForClient);

@@ -65,13 +65,13 @@ $(function () {
         clearNoUdpKinectDataReceivedTimer(data.ID);
 
         if (data.kinectData.trackedBodies) {
-            $('#kinectData #kinect' + data.ID + ' .kinectStatus').addClass('success');
-            $('#kinectData #kinect' + data.ID + ' .kinectStatus').removeClass('danger');
-            //##############################$('#kinectData #kinect' + data.ID + ' .kinectTrackingData').text("[" + data.kinectData.positionTracked.x + ", " + data.kinectData.positionTracked.y + ", " + data.kinectData.positionTracked.z + "]");
+            $('#kinectData #kinect' + data.ID + ' .kinectBodiesCount').text(data.trackingBodiesCount);
+            $('#kinectData #kinect' + data.ID + ' .kinectTrackingData').html($.map(data.kinectData.trackedBodies, function (obj) {
+                return JSON.stringify(obj.positionTracked) + "<br/>";
+            }).join(' '));
         }
         else {
-            $('#kinectData #kinect' + data.ID + ' .kinectStatus').removeClass('success');
-            $('#kinectData #kinect' + data.ID + ' .kinectStatus').addClass('danger');
+            $('#kinectData #kinect' + data.ID + ' .kinectBodiesCount').text("0");
             $('#kinectData #kinect' + data.ID + ' .kinectTrackingData').text("---no body tracked---");
         }
         $('#kinectData #kinect' + data.ID + ' .sourceIP').text(data.sourceIP);
@@ -155,7 +155,7 @@ $(function () {
 
     function startNoUdpKinectDataReceivedTimer(kinectID) {
         noUdpDataReceivedTimer[kinectID] = setTimeout(function () {
-            $('#kinectData #kinect' + kinectID + ' .kinectStatus').removeClass('success danger');
+            $('#kinectData #kinect' + kinectID + ' .kinectBodiesCount').text('---no data received---');
             $('#kinectData #kinect' + kinectID + ' .kinectTrackingData').text("---no data received---");
             $('#kinectData #kinect' + kinectID + ' .sourceIP').text("---no data received---");
             $('#kinectData #kinect' + kinectID + ' .trackingGestures').text("---no data received---");
@@ -187,7 +187,7 @@ $(function () {
         var tableHTMLContent = '<tr id="kinect' + id + '" source="' + ipv4Adress + '">' +
             '<th>' + id + '</th>' +
             '<td class="clientStatus"></td>' +
-            '<td class="kinectStatus"></td>' +
+            '<td class="kinectBodiesCount"></td>' +
             '<td class="kinectTrackingData"></td>' +
             '<td class="sourceIP">' + ipv4Adress + '</td>' +
             '<td class="trackingGestures"></td>' +
