@@ -61,7 +61,6 @@ module.exports = {
 
             translatedPositions.push({ x: result[0], y: result[1], z: result[2] });
 
-            translatedPositions.push({ x: result[0], y: result[1] +2 , z: result[2] + 2 });
         });
 
         return {

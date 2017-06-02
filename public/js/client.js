@@ -72,7 +72,7 @@ $(function () {
         }
         else {
             $('#kinectData #kinect' + data.ID + ' .kinectBodiesCount').text("0");
-            $('#kinectData #kinect' + data.ID + ' .kinectTrackingData').text("---no body tracked---");
+            $('#kinectData #kinect' + data.ID + ' .kinectTrackingData').html("---no body tracked---");
         }
         $('#kinectData #kinect' + data.ID + ' .sourceIP').text(data.sourceIP);
         $('#kinectData #kinect' + data.ID).attr("source", data.sourceIP);
@@ -103,18 +103,18 @@ $(function () {
 
                 $('.person#kinect_person' + data.ID + "-" + index).css({ top: positionVector.z * 100 + 'px', left: positionVector.x * 100 + 'px' }); //*100 to parse meter from kinect to cm 
             });
+
+            data.kinectData.trackedBodies.forEach(function (trackedBody, index) {
+                if (trackedBody.trackedGesture) {
+                    $('#kinectData #kinect' + data.ID + ' .trackingGesturePosition').append(trackedBody.trackedGesture + "@" + JSON.stringify(trackedBody.positionGestureTracked) + "<br/>");
+                }
+            });
         }
         else {
             if ($("#room [id^=kinect_person" + data.ID + "]").length > 1) {
                 $("[id^=kinect_person" + data.ID + "]").remove();
             }
         }
-
-        //test code
-        // if (data.kinectData.trackedBodies && data.kinectData.trackedGesture != "") {
-        //     //alert(data.kinectData.trackedGesture);
-        //     //###############################$('#kinectData #kinect' + data.ID + ' .trackingGesturePosition').text("[" + data.kinectData.positionGestureTracked.x + ", " + data.kinectData.positionGestureTracked.y + ", " + data.kinectData.positionGestureTracked.z + "]");
-        // }
     });
 
 
@@ -156,7 +156,7 @@ $(function () {
     function startNoUdpKinectDataReceivedTimer(kinectID) {
         noUdpDataReceivedTimer[kinectID] = setTimeout(function () {
             $('#kinectData #kinect' + kinectID + ' .kinectBodiesCount').text('---no data received---');
-            $('#kinectData #kinect' + kinectID + ' .kinectTrackingData').text("---no data received---");
+            $('#kinectData #kinect' + kinectID + ' .kinectTrackingData').html("---no data received---");
             $('#kinectData #kinect' + kinectID + ' .sourceIP').text("---no data received---");
             $('#kinectData #kinect' + kinectID + ' .trackingGestures').text("---no data received---");
             $('#kinectData #kinect' + kinectID + ' .trackingGesturePosition').text("---no data received---");
