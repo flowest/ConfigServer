@@ -7,6 +7,7 @@ const net = require('net');
 const kinectDataUdpSocket = dgram.createSocket('udp4');
 
 const fs = require('fs');
+var os = require('os');
 
 const kinectClients = require("./server_scripts/kinect_clients");
 kinectClients.init(io);
@@ -19,6 +20,12 @@ room.init(io);
 
 const math = require("./server_scripts/calculation");
 
+const ipAdress = getIpAdress();
+
+const OscEmitter = require('osc-emitter')
+  , oscEmitter = new OscEmitter();
+
+oscEmitter.add(ipAdress, 12000);
 
 
 //load the proto files
@@ -72,6 +79,8 @@ kinectDataUdpSocket.on('message', (msg, rinfo) => {
   };
 
   dataForClient.translatedBodies = math.manageMerging(kinectID, translation.translatedBodies)
+
+  oscEmitter.emit('/bodies', JSON.stringify(dataForClient.translatedBodies));
 
   io.emit('kinect_update_data', dataForClient);
 });
@@ -216,7 +225,7 @@ app.post('/upload_dat', upload.any(), function (req, res, next) {
 // });
 
 http.listen(3000, function () {
-  console.log('http server listening on *:3000');
+  console.log('http server listening on ' + ipAdress + ':3000');
 });
 
 
@@ -251,4 +260,18 @@ function saveAndDistributeNewGestureFile(buffer, gestureFileName) {
       kinectClients.broadcastTcpDataToClients(payload);
     }
   });
+}
+
+function getIpAdress() {
+  var interfaces = os.networkInterfaces();
+  var addresses = [];
+  for (var interfaceIndex in interfaces) {
+    for (var interface in interfaces[interfaceIndex]) {
+      var address = interfaces[interfaceIndex][interface];
+      if (address.family === 'IPv4' && !address.internal) {
+        return address.address;
+      }
+    }
+  }
+
 }

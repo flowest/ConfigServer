@@ -2,8 +2,8 @@ const math = require('mathjs');
 const room = require("./room");
 
 // var kinectsWithTrackingBodies = { "100": [{ x: 0.1, y: 0, z: 0 }, { x: 0.9, y: 0, z: 0 }, { x: 1.1, y: 0, z: 0 }], "101": [{ x: 2.0, y: 0, z: 0 }] };
-var kinectsWithTrackingBodies = { "101": [{ x: 5.0, y: 0, z: 2, fromKinect: "101", trackedGesture: "" }, { x: 7.0, y: 0, z: 2, fromKinect: "101", trackedGesture: "" }] };
-// var kinectsWithTrackingBodies = {};
+// var kinectsWithTrackingBodies = { "101": [{ x: 5.0, y: 0, z: 2, fromKinect: "101", trackedGesture: "" }, { x: 7.0, y: 0, z: 2, fromKinect: "101", trackedGesture: "" }] };
+var kinectsWithTrackingBodies = {};
 var allTrackedBodies = [];
 
 const ACCEPTABLE_DISTANCE = 0.3;
