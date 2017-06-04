@@ -70,6 +70,44 @@
         <hr/>
         <div class="row">
             <div class="col-lg-12">
+                <h1>OSC Settings</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="input-group">
+                    <span class="input-group-addon" id="osc-ip-addon">IP address</span>
+                    <input type="text" id="osc-ip" class="form-control" aria-describedby="osc-ip-addon">
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="input-group">
+                    <span class="input-group-addon" id="osc-port-addon">Port number</span>
+                    <input type="number" id="osc-port" class="form-control" aria-describedby="osc-ip-port">
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <button class="btn btn-success" onclick="addOscTarget()">Add</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <h3>List of OSC targets</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-4">
+                <ul class="list-group" id="osc-clients">
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <div class="container">
+        <hr/>
+        <div class="row">
+            <div class="col-lg-12">
                 <h1>SmartSpace</h1>
             </div>
         </div>

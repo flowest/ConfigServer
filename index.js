@@ -18,14 +18,11 @@ gestureFiles.init(io);
 const room = require("./server_scripts/room");
 room.init(io);
 
+const osc_clients = require("./server_scripts/osc_clients");
+osc_clients.init(io);
+
 const math = require("./server_scripts/calculation");
 
-const ipAdress = getIpAdress();
-
-const OscEmitter = require('osc-emitter')
-  , oscEmitter = new OscEmitter();
-
-oscEmitter.add(ipAdress, 12000);
 
 
 //load the proto files
@@ -80,7 +77,7 @@ kinectDataUdpSocket.on('message', (msg, rinfo) => {
 
   dataForClient.translatedBodies = math.manageMerging(kinectID, translation.translatedBodies)
 
-  oscEmitter.emit('/bodies', JSON.stringify(dataForClient.translatedBodies));
+  osc_clients.oscEmitter.emit('/bodies', JSON.stringify(dataForClient.translatedBodies));
 
   io.emit('kinect_update_data', dataForClient);
 });
@@ -203,7 +200,21 @@ io.on('connection', function (socket) {
     room.deleteKinectSettings(fileName);
     room.sendKinectSettingsToClient();
     console.log("removed " + fileName);
-  })
+  });
+
+  socket.on("get_osc_clients", function () {
+    osc_clients.sendOscClients();
+  });
+
+  socket.on("new_osc_target", function (clientData) {
+    osc_clients.addOscClient(clientData);
+    console.log("added osc client");
+  });
+
+  socket.on("delete_osc_client", function (clientData) {
+    osc_clients.removeOscClient(clientData);
+    console.log("removed osc client");
+  });
 });
 
 app.get('/', function (req, res) {
@@ -225,7 +236,7 @@ app.post('/upload_dat', upload.any(), function (req, res, next) {
 // });
 
 http.listen(3000, function () {
-  console.log('http server listening on ' + ipAdress + ':3000');
+  console.log('http server listening on *:3000');
 });
 
 
@@ -260,18 +271,4 @@ function saveAndDistributeNewGestureFile(buffer, gestureFileName) {
       kinectClients.broadcastTcpDataToClients(payload);
     }
   });
-}
-
-function getIpAdress() {
-  var interfaces = os.networkInterfaces();
-  var addresses = [];
-  for (var interfaceIndex in interfaces) {
-    for (var interface in interfaces[interfaceIndex]) {
-      var address = interfaces[interfaceIndex][interface];
-      if (address.family === 'IPv4' && !address.internal) {
-        return address.address;
-      }
-    }
-  }
-
 }

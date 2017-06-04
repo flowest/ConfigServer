@@ -7,6 +7,7 @@ $(function () {
     const TCP_DISCONNECT_TIMEOUT_MILLISECONDS = 10000;
 
     socket.emit('get_room_settings');
+    socket.emit('get_osc_clients');
     socket.emit('get_kinect_settings');
 
     socket.on('send_room_settings', function (roomSettings) {
@@ -16,6 +17,18 @@ $(function () {
         $("#room-length").val(roomSettings.length);
 
         $("#room").css({ width: roomSettings.width + 'px', height: roomSettings.length + 'px' });
+    });
+
+    socket.on("send_osc_clients", function (clients) {
+
+        $("#osc-clients").empty();
+        clients.forEach(function (client) {
+            var listElement = $('<li class="list-group-item">' + client.ipAddr + ":" + client.port + '<button class="btn btn-danger deleteOsc btn-xs pull-right">X</button> </li>');;
+            listElement.on("click", ".deleteOsc", function () {
+                deleteOscTarget(client);
+            });
+            $("#osc-clients").append(listElement);;
+        });
     });
 
 
@@ -296,4 +309,21 @@ function deleteKinectSettingFile(fileName) {
     if (confirm("Delete " + fileName + "?")) {
         socket.emit('delete_kinect_settings', fileName);
     }
+}
+
+function addOscTarget() {
+    var ipAddr = $("#osc-ip").val();
+    var port = $("#osc-port").val();
+
+    $("#osc-ip").val("");
+    $("#osc-port").val("");
+
+    socket.emit("new_osc_target", {
+        ipAddr: ipAddr,
+        port, port
+    });
+}
+
+function deleteOscTarget(clientData) {
+    socket.emit("delete_osc_client", clientData);
 }
