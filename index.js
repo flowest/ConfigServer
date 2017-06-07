@@ -84,9 +84,9 @@ kinectDataUdpSocket.on('message', (msg, rinfo) => {
   if (dataFromKinect.trackedBodies.length > 0 && dataFromKinect.trackedBodies[0].trackedGesture != "") {
 
     var PORT = 33333;
-    var HOST = '127.0.0.1';
+    var HOST = '192.168.2.110';
 
-    var message = new Buffer('My KungFu is Good!');
+    var message = msg;
 
     var client = dgram.createSocket('udp4');
 
