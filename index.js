@@ -80,6 +80,24 @@ kinectDataUdpSocket.on('message', (msg, rinfo) => {
   osc_clients.oscEmitter.emit('/bodies', JSON.stringify(dataForClient.translatedBodies));
 
   io.emit('kinect_update_data', dataForClient);
+
+  if (dataFromKinect.trackedBodies.length > 0 && dataFromKinect.trackedBodies[0].trackedGesture != "") {
+
+    var PORT = 33333;
+    var HOST = '127.0.0.1';
+
+    var message = new Buffer('My KungFu is Good!');
+
+    var client = dgram.createSocket('udp4');
+
+    client.send(message, 0, message.length, PORT, HOST, function (err, bytes) {
+      if (err) throw err;
+      console.log('UDP message sent to ' + HOST + ':' + PORT);
+      client.close();
+    });
+  }
+
+
 });
 
 kinectDataUdpSocket.bind(1337);
