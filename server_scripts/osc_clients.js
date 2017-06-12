@@ -31,7 +31,6 @@ module.exports = {
 
         oscClients.clients.forEach(function (element, index) {
             if (element["ipAddr"] === clientData.ipAddr && element["port"] === clientData.port) {
-                //Remove from array
                 oscClients.clients.splice(index, 1);
             }
         });

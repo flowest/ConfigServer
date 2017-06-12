@@ -62,7 +62,6 @@ kinectDataUdpSocket.on('error', (err) => {
 
 //listening udp socket for kinect data
 kinectDataUdpSocket.on('message', (msg, rinfo) => {
-  //console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
   var dataFromKinect = KinectData.decode(msg);
   let kinectID = rinfo.address.split('.')[3];
   let translation = math.translate(dataFromKinect.trackedBodies, kinectID);
@@ -80,24 +79,6 @@ kinectDataUdpSocket.on('message', (msg, rinfo) => {
   osc_clients.oscEmitter.emit('/bodies', JSON.stringify(dataForClient.translatedBodies));
 
   io.emit('kinect_update_data', dataForClient);
-
-  if (dataFromKinect.trackedBodies.length > 0 && dataFromKinect.trackedBodies[0].trackedGesture != "") {
-
-    var PORT = 33333;
-    var HOST = '192.168.2.110';
-
-    var message = msg;
-
-    var client = dgram.createSocket('udp4');
-
-    client.send(message, 0, message.length, PORT, HOST, function (err, bytes) {
-      if (err) throw err;
-      console.log('UDP message sent to ' + HOST + ':' + PORT);
-      client.close();
-    });
-  }
-
-
 });
 
 kinectDataUdpSocket.bind(1337);
@@ -147,7 +128,6 @@ var tcp_server = net.createServer(function (tcpSocket) {
       var missingFiles = tcp_data.missingFiles.files;
       missingFiles.forEach(missingFile => {
         var fileBuffer = fs.readFileSync(GESTURE_DIRECTORY + missingFile);
-        var jochen = tcpSocket;
 
         gestureFiles.sendMissingGestureFileToClient(fileBuffer, missingFile, tcpSocket)
       })
@@ -164,13 +144,6 @@ tcp_server.listen(8000, function () {
 });
 
 io.on('connection', function (socket) {
-
-  socket.on("test_sending", function (data) {
-    //console.log(data);
-
-    console.log(math.translate(data.positionVector));
-
-  });
 
   socket.on('get_gesture_files', function (data) {
     io.emit('saved_gesture_files', gestureFiles.loadGestureFiles());
@@ -239,19 +212,11 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
-// app.get('/upload_dat', function (req, res) {
-//   res.redirect('/');
-// });
-
 app.post('/upload_dat', upload.any(), function (req, res, next) {
   saveAndDistributeNewGestureFile(req.files[0].buffer, req.files[0].originalname);
   res.redirect('/');
   io.emit('saved_gesture_files', gestureFiles.loadGestureFiles());
 });
-
-// io.on('connection', function(socket){
-//     io.emit('update_data', data);
-// });
 
 http.listen(3000, function () {
   console.log('http server listening on *:3000');

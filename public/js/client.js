@@ -168,7 +168,6 @@ $(function () {
             $('#kinectData #kinect' + kinectID + ' .sourceIP').text("---no data received---");
             $('#kinectData #kinect' + kinectID + ' .trackingGestures').text("---no data received---");
             $('#kinectData #kinect' + kinectID + ' .trackingGesturePosition').text("---no data received---");
-            //$('#kinectData #kinect' + kinectID).attr("source", "no-source");
         }, UDP_DISCONNECT_TIMEOUT_MILLISECONDS);
     }
 
@@ -212,24 +211,24 @@ $(function () {
 });
 
 var _validFileExtensions = [".dat"];
-function validateSingleInput(oInput) {
-    if (oInput.type == "file") {
-        var sFileName = oInput.value;
-        if (sFileName.length > 0) {
-            var blnValid = false;
+function validateSingleInput(input) {
+    if (input.type == "file") {
+        var fileName = input.value;
+        if (fileName.length > 0) {
+            var hasValidExtension = false;
             for (var j = 0; j < _validFileExtensions.length; j++) {
-                var sCurExtension = _validFileExtensions[j];
-                if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
-                    blnValid = true;
+                var currentFileExtension = _validFileExtensions[j];
+                if (fileName.substr(fileName.length - currentFileExtension.length, currentFileExtension.length).toLowerCase() == currentFileExtension.toLowerCase()) {
+                    hasValidExtension = true;
                     $('#submitGestureFileButton').removeClass('disabled btn-default');
                     $('#submitGestureFileButton').addClass('btn-info');
                     break;
                 }
             }
 
-            if (!blnValid) {
-                alert("Sorry, " + oInput.value + " is invalid, allowed extensions are: " + _validFileExtensions.join(", "));
-                oInput.value = "";
+            if (!hasValidExtension) {
+                alert("Sorry, " + input.value + " is invalid, allowed extensions are: " + _validFileExtensions.join(", "));
+                input.value = "";
                 return false;
             }
         }
@@ -238,10 +237,6 @@ function validateSingleInput(oInput) {
 }
 
 socket.emit('get_gesture_files');
-
-function sendDataToServer() {
-    socket.emit("test_sending", { positionVector: [1, 0, 0, 1] });
-}
 
 function deleteGestureFile(file) {
     if (confirm("Do you really want to delete gesture: " + file + "?")) {

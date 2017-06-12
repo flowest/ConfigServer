@@ -1,9 +1,9 @@
 const math = require('mathjs');
 const room = require("./room");
 
-// var kinectsWithTrackingBodies = { "100": [{ x: 0.1, y: 0, z: 0 }, { x: 0.9, y: 0, z: 0 }, { x: 1.1, y: 0, z: 0 }], "101": [{ x: 2.0, y: 0, z: 0 }] };
-var kinectsWithTrackingBodies = { "101": [{ x: 5.0, y: 0, z: 2, fromKinect: "101", trackedGesture: "" }, { x: 7.0, y: 0, z: 2, fromKinect: "101", trackedGesture: "" }] };
-// var kinectsWithTrackingBodies = {};
+////adding fake data for testing
+// var kinectsWithTrackingBodies = { "101": [{ x: 5.0, y: 0, z: 2, fromKinect: "101", trackedGesture: "" }, { x: 7.0, y: 0, z: 2, fromKinect: "101", trackedGesture: "" }] };
+var kinectsWithTrackingBodies = {};
 var allTrackedBodies = [];
 
 const ACCEPTABLE_DISTANCE = 0.3;
@@ -20,8 +20,7 @@ module.exports = {
             return setting.name == kinectID + ".json";
         });
 
-        //when theer is no cinfig file for kienct
-
+        //when there is no config file for kinect
         if (settingsForKinect == undefined) {
             let newSettings = {
                 newXPos: 0,
@@ -61,8 +60,7 @@ module.exports = {
 
         const resultMatrix = math.multiply(translationMatrix, rotationMatrix);
 
-        //do the math
-
+        //do the math stuff
         let translatedBodies = [];
 
         trackedBodies.forEach(function (body) {
